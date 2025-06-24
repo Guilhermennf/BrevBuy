@@ -1,90 +1,57 @@
-# Diretórios e arquivos que devem ser ignorados pelo Git
-
-# Node.js
+# Dependências
 node_modules/
+/.pnp
+.pnp.js
+
+# Testes
+/coverage
+*.lcov
 
 # Next.js
-.next/
-public/
+/.next/
+/out/
 
-# Arquivos de configuração
-next.config.js
-next-i18next.config.js
-
-# Arquivos de cache
-.cache/
-# Arquivos de build
-build/
-
-# Arquivos de logs
-logs/
-
-# Arquivos de testes
-coverage/
-
-# Arquivos de configuração do editor
-.vscode/
-.idea/
-.atom/
-.sublime-workspace/
-.sublime-project/
-.sublime-workspace/
-
-# Arquivos de sistema
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Arquivos de backup
-*~
-*.bak
-*.old
-*.orig
-
-# Arquivos de configuração do sistema
-config.js
-config.json
-
-# Arquivos de dados
-data/
-
-# Arquivos de documentação
-docs/
-
-# Arquivos de testes
-tests/
-
-# Arquivos de utilitários
-utils/
-
-# Arquivos de componentes
-components/
-
-# Arquivos de páginas
-pages/
-
-# Arquivos de estilos
-styles/
-
-# Arquivos de imagens
-images/
-
-# Arquivos de fontes
-fonts/
-
-# Arquivos de áudio
-audio/
-
-# Arquivos de vídeo
-video/
-
-# Arquivos de configuração do Prisma
-prisma/
-prisma/schema.prisma
-prisma/migrations/
-prisma/migrations/README.md
+# Build de produção
+/dist/
+/build/
 
 # Arquivos de ambiente
 .env
-.env.local
+.env*.local
+
+# Verificador de tipos
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Relatórios de diagnóstico
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Cache do editor
+.vscode/
+.idea/
+
+# Arquivos do sistema
+.DS_Store
+*.pem
+Thumbs.db
+
+# Configuração do Prisma (mantenha o schema, ignore as migrações aplicadas)
+/prisma/migrations/migration_lock.toml
+
+# Uploads e dados temporários
+/uploads/
+/temp/
+
+# Cache
+.turbo/
+
+# Configurações locais
+.env
+.env.example
