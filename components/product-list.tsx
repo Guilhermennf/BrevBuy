@@ -1,39 +1,58 @@
+"use client";
+
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { MoreHorizontal, Package, ShoppingCart, ImageIcon } from "lucide-react";
-import Image from "next/image";
+import { Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductActions } from "@/components/product-actions";
 import { ProductImage } from "@/components/product-image";
-import { prisma } from "@/lib/prisma";
+import { useProducts } from "@/hooks/use-products-query";
+import { useMemo } from "react";
 
 interface ProductListProps {
     filter?: "AVAILABLE" | "SOLD";
     categoryId?: string;
 }
 
-export async function ProductList({
-    filter,
-    categoryId,
-}: ProductListProps = {}) {
-    const whereClause: any = {};
+export function ProductList({ filter, categoryId }: ProductListProps = {}) {
+    const { data: allProducts = [], isLoading: loading } = useProducts();
 
-    if (filter) {
-        whereClause.status = filter;
+    const filteredProducts = useMemo(() => {
+        return allProducts.filter((product) => {
+            if (filter && product.status !== filter) return false;
+            if (
+                categoryId &&
+                categoryId !== "ALL" &&
+                product.categoryId !== categoryId
+            )
+                return false;
+            return true;
+        });
+    }, [allProducts, filter, categoryId]);
+
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="p-4">
+                        <CardContent className="p-0">
+                            <div className="flex items-start gap-4">
+                                <div className="w-20 h-20 bg-muted animate-pulse rounded-lg" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                                    <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
+                                    <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        );
     }
 
-    if (categoryId && categoryId !== "ALL") {
-        whereClause.categoryId = categoryId;
-    }
-
-    const products = await prisma.product.findMany({
-        where: whereClause,
-        orderBy: { createdAt: "desc" },
-    });
-
-    if (products.length === 0) {
+    if (filteredProducts.length === 0) {
         return (
             <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -50,9 +69,9 @@ export async function ProductList({
     }
 
     // Converter produtos para o tipo que ProductActions espera
-    const convertedProducts = products.map((product) => ({
+    const convertedProducts = filteredProducts.map((product) => ({
         ...product,
-        categoryId: null as string | null,
+        categoryId: product.categoryId || null,
         category: null,
     }));
 

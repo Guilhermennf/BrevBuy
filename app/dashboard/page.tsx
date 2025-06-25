@@ -11,6 +11,9 @@ import { StatsCards } from "@/components/stats-cards";
 import { AddProductDialog } from "@/components/add-product-dialog";
 import { Package } from "lucide-react";
 
+// Força renderização dinâmica para evitar problemas de build
+export const dynamic = "force-dynamic";
+
 export default function DashboardPage() {
     return (
         <div className="space-y-6">
