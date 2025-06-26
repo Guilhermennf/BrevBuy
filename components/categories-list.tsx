@@ -68,7 +68,7 @@ export function CategoriesList() {
   return (
     <>
       <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className=" md:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
             <Card key={category.id} className="relative">
               <CardHeader className="pb-3">

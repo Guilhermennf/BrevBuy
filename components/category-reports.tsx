@@ -120,7 +120,7 @@ export function CategoryReports() {
           </CardHeader>
 
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4 text-muted-foreground" />

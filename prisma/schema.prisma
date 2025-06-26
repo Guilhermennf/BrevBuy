@@ -50,6 +50,7 @@ model User {
   categories    Category[]
   products      Product[]
   sessions      Session[]
+  automationConfig AutomationConfig?
 
   @@map("users")
 }
@@ -93,8 +94,31 @@ model Product {
   updatedAt   DateTime  @updatedAt
   soldAt      DateTime?
   userId      String
+  aliexpressOrderId String?
+  aliexpressUrl     String?
+  originalTitle     String?
+  importedAt        DateTime?
+  automationSource  String?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   category    Category? @relation(fields: [categoryId], references: [id])
 
   @@map("products")
+}
+
+model AutomationConfig {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  gmailEnabled          Boolean @default(false)
+  gmailAccessToken      String?
+  gmailRefreshToken     String?
+  aliexpressEmail       String?
+  defaultMarkupPercent  Float   @default(50.0)
+  defaultCategoryId     String?
+  openaiApiKey          String?
+  automaticCategorization Boolean @default(true)
+  automaticDescription  Boolean @default(true)
+  
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("automation_configs")
 }

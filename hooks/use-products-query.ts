@@ -98,7 +98,7 @@ const sellProduct = async ({
   data: SellProductFormData;
 }): Promise<Product> => {
   const response = await fetch(`/api/products/${id}/sell`, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
@@ -232,6 +232,62 @@ export function useDeleteProduct() {
       toast({
         title: "Erro",
         description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export interface UploadResponse {
+  imageUrl: string;
+  message: string;
+}
+
+// Função de API para upload
+const uploadImage = async (file: File): Promise<UploadResponse> => {
+  // Validar tipo de arquivo
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Tipo de arquivo não permitido. Use JPEG, PNG ou WebP.");
+  }
+
+  // Validar tamanho (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Arquivo muito grande. Máximo 5MB.");
+  }
+
+  // Fazer upload
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erro no upload");
+  }
+
+  return response.json();
+};
+
+// Hook para upload de imagem
+export function useUploadImage() {
+  return useMutation<UploadResponse, Error, File>({
+    mutationFn: uploadImage,
+    onSuccess: (data) => {
+      toast({
+        title: "Upload realizado!",
+        description: "Imagem enviada com sucesso.",
+      });
+    },
+    onError: (error) => {
+      console.error("Erro no upload:", error);
+      toast({
+        title: "Erro no upload",
+        description: error.message || "Não foi possível enviar a imagem.",
         variant: "destructive",
       });
     },

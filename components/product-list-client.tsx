@@ -50,7 +50,7 @@ export function ProductListClient({ filters }: ProductListClientProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 grid-cols-1">
       {products.map((product) => (
         <Card key={product.id} className="p-4">
           <CardContent className="p-0">
