@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
 import { ProductFormData, SellProductFormData } from "@/lib/validations";
 
 export interface Product {
@@ -11,7 +10,7 @@ export interface Product {
   buyPrice: number;
   sellPrice: number | null;
   supplier: string | null;
-  imageUrl: string | null;
+  image: Uint8Array | null;
   status: "AVAILABLE" | "SOLD";
   createdAt: Date;
   updatedAt: Date;
@@ -50,13 +49,11 @@ const fetchProducts = async (filters?: ProductsFilters): Promise<Product[]> => {
   return response.json();
 };
 
-const createProduct = async (data: ProductFormData): Promise<Product> => {
+// Agora aceita FormData para enviar imagem junto
+const createProduct = async (data: FormData): Promise<Product> => {
   const response = await fetch("/api/products", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
 
   if (!response.ok) {
@@ -72,14 +69,11 @@ const updateProduct = async ({
   data,
 }: {
   id: string;
-  data: ProductFormData;
+  data: FormData;
 }): Promise<Product> => {
   const response = await fetch(`/api/products/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
 
   if (!response.ok) {
@@ -98,7 +92,7 @@ const sellProduct = async ({
   data: SellProductFormData;
 }): Promise<Product> => {
   const response = await fetch(`/api/products/${id}/sell`, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
@@ -150,19 +144,8 @@ export function useCreateProduct() {
     onSuccess: (newProduct) => {
       // Invalidar todas as queries de produtos para garantir consistência
       queryClient.invalidateQueries({ queryKey: productsKeys.all });
-
-      toast({
-        title: "Sucesso",
-        description: "Produto criado com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
 
@@ -174,19 +157,8 @@ export function useUpdateProduct() {
     onSuccess: (updatedProduct) => {
       // Invalidar queries de produtos
       queryClient.invalidateQueries({ queryKey: productsKeys.all });
-
-      toast({
-        title: "Sucesso",
-        description: "Produto atualizado com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
 
@@ -198,19 +170,8 @@ export function useSellProduct() {
     onSuccess: (soldProduct) => {
       // Invalidar queries de produtos
       queryClient.invalidateQueries({ queryKey: productsKeys.all });
-
-      toast({
-        title: "Sucesso",
-        description: "Produto vendido com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
 
@@ -222,18 +183,96 @@ export function useDeleteProduct() {
     onSuccess: () => {
       // Invalidar queries de produtos
       queryClient.invalidateQueries({ queryKey: productsKeys.all });
+    },
+    // Toast será exibido automaticamente pelo sistema centralizado
+  });
+}
 
-      toast({
-        title: "Sucesso",
-        description: "Produto excluído com sucesso!",
-      });
+export interface UploadResponse {
+  imageUrl: string;
+  message: string;
+}
+
+// Função de API para upload
+const uploadImage = async (
+  formData: FormData
+): Promise<{ imageUrl: string }> => {
+  const response = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erro no upload da imagem");
+  }
+
+  return response.json();
+};
+
+// Hook para upload de imagens
+export function useUploadImage() {
+  return useMutation({
+    mutationFn: uploadImage,
+    // Toast será exibido automaticamente pelo sistema centralizado
+  });
+}
+
+// Hook para exportação de dados
+const exportProducts = async (): Promise<Blob> => {
+  const response = await fetch("/api/products");
+
+  if (!response.ok) {
+    throw new Error("Erro ao carregar produtos para exportação");
+  }
+
+  const products = await response.json();
+
+  if (products.length === 0) {
+    throw new Error("Nenhum produto encontrado para exportar");
+  }
+
+  // Criar CSV
+  const headers = [
+    "Nome",
+    "Descrição",
+    "Preço de Compra",
+    "Preço de Venda",
+    "Categoria",
+    "Fornecedor",
+    "Status",
+  ];
+
+  const csvContent = [
+    headers.join(","),
+    ...products.map((product: any) =>
+      [
+        `"${product.name}"`,
+        `"${product.description || ""}"`,
+        product.buyPrice,
+        product.sellPrice || "",
+        `"${product.category || ""}"`,
+        `"${product.supplier || ""}"`,
+        product.status,
+      ].join(",")
+    ),
+  ].join("\n");
+
+  return new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+};
+
+export function useExportProducts() {
+  return useMutation({
+    mutationFn: exportProducts,
+    onSuccess: (blob) => {
+      // Fazer download do arquivo
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `produtos_${new Date().toISOString().split("T")[0]}.csv`;
+      link.click();
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }

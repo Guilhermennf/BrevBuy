@@ -36,22 +36,14 @@ export const productSchema = z.object({
     .min(0.01, "Preço de compra deve ser maior que zero"),
   categoryId: z
     .string()
-    .uuid("ID da categoria inválido")
+    .min(1, "Selecione uma categoria")
     .optional()
     .or(z.literal("")),
   supplier: z
     .string()
     .max(100, "Nome do fornecedor deve ter no máximo 100 caracteres")
     .optional(),
-  imageUrl: z
-    .string()
-    .refine((val) => {
-      if (!val || val === "") return true;
-      // Aceitar URLs completas (http/https) ou caminhos locais (/uploads/...)
-      return val.startsWith("http") || val.startsWith("/");
-    }, "URL da imagem inválida")
-    .optional()
-    .or(z.literal("")),
+  image: z.instanceof(Uint8Array).optional(),
 });
 
 export const createProductSchema = productSchema;

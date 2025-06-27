@@ -17,12 +17,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
 import { loginSchema, LoginFormData } from "@/lib/validations";
+import { useAuthToast } from "@/hooks/use-auth-toast";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const authToast = useAuthToast();
 
   const {
     register,
@@ -47,25 +49,15 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast({
-          title: "Erro no login",
-          description: "Email ou senha incorretos.",
-          variant: "destructive",
-        });
+        authToast.showLoginError();
       } else {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para o dashboard...",
-        });
+        authToast.showLoginSuccess();
         router.push("/dashboard");
         router.refresh();
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado.",
-        variant: "destructive",
-      });
+      // Toast será exibido automaticamente pelo sistema centralizado
+      console.error("Erro inesperado no login:", error);
     } finally {
       setLoading(false);
     }
@@ -112,9 +104,8 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="••••••••"
                   {...register("password")}
                   className="bg-background/50"

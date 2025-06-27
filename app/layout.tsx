@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { SessionProvider } from "@/components/session-provider";
-import { QueryProvider } from "@/components/query-provider";
+import { SessionProvider } from "@/components/next-auth/session-provider";
+import { QueryProvider } from "@/components/react-query/query-provider";
+import { GlobalToastProvider } from "@/components/toast/global-toast-provider";
+import packageIcon from "@/assets/images/package.png";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sistema de Gestão de Produtos",
+  icons: {
+    icon: packageIcon.src,
+  },
   description: "Sistema para controle de produtos comprados e vendidos",
 };
 
@@ -23,15 +28,17 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionProvider>
           <QueryProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Toaster />
-            </ThemeProvider>
+            <GlobalToastProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toaster />
+              </ThemeProvider>
+            </GlobalToastProvider>
           </QueryProvider>
         </SessionProvider>
       </body>

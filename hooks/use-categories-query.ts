@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
 import { CategoryFormData } from "@/lib/validations";
 
 export interface Category {
@@ -106,19 +105,8 @@ export function useCreateCategory() {
         categoriesKeys.lists(),
         (old: Category[] = []) => [...old, newCategory]
       );
-
-      toast({
-        title: "Sucesso",
-        description: "Categoria criada com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
 
@@ -134,19 +122,8 @@ export function useUpdateCategory() {
           category.id === updatedCategory.id ? updatedCategory : category
         )
       );
-
-      toast({
-        title: "Sucesso",
-        description: "Categoria atualizada com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
 
@@ -160,18 +137,7 @@ export function useDeleteCategory() {
       queryClient.setQueryData(categoriesKeys.lists(), (old: Category[] = []) =>
         old.filter((category) => category.id !== deletedId)
       );
-
-      toast({
-        title: "Sucesso",
-        description: "Categoria excluída com sucesso!",
-      });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // Toast será exibido automaticamente pelo sistema centralizado
   });
 }
