@@ -8,9 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ProductListClient } from "@/components/product-list-client";
-import { ProductsFilter } from "@/components/products-filter";
-import { AddProductDialog } from "@/components/add-product-dialog";
+import { ProductListClient } from "@/components/product/product-list-client";
+import { AddProductDialog } from "@/components/product/add-product-dialog";
 import { Package } from "lucide-react";
 
 export default function ProdutosPage() {

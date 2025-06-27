@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useUpdateProfile } from "@/hooks/use-profile";
+import { useExportProducts } from "@/hooks/use-products-query";
 import {
   Card,
   CardContent,
@@ -12,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Settings,
   User,
@@ -21,12 +22,16 @@ import {
   Save,
   Download,
   Upload,
+  Check,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
 
 export default function ConfiguracoesPage() {
-  const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
+  const { data: session, update: updateSession } = useSession();
+  const { theme, setTheme } = useTheme();
+  const updateProfileMutation = useUpdateProfile();
+  const exportProductsMutation = useExportProducts();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,84 +54,36 @@ export default function ConfiguracoesPage() {
   };
 
   const handleSaveProfile = async () => {
-    setLoading(true);
-    try {
-      // Aqui você pode implementar a API para atualizar o perfil
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulação
-
-      toast({
-        title: "Perfil atualizado!",
-        description: "Suas informações foram salvas com sucesso.",
-      });
-    } catch (error) {
+    if (!formData.name.trim()) {
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o perfil.",
+        description: "Nome é obrigatório",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    updateProfileMutation.mutate(
+      {
+        name: formData.name.trim(),
+      },
+      {
+        onSuccess: async (data) => {
+          // Atualizar a sessão localmente
+          await updateSession({
+            ...session,
+            user: {
+              ...session?.user,
+              name: data.user.name,
+            },
+          });
+        },
+      }
+    );
   };
 
-  const handleExportData = async () => {
-    try {
-      const response = await fetch("/api/products");
-      const products = await response.json();
-
-      if (products.length === 0) {
-        toast({
-          title: "Nenhum dado encontrado",
-          description: "Você ainda não possui produtos cadastrados.",
-        });
-        return;
-      }
-
-      // Criar CSV
-      const headers = [
-        "Nome",
-        "Descrição",
-        "Preço de Compra",
-        "Preço de Venda",
-        "Categoria",
-        "Fornecedor",
-        "Status",
-      ];
-      const csvContent = [
-        headers.join(","),
-        ...products.map((product: any) =>
-          [
-            `"${product.name}"`,
-            `"${product.description || ""}"`,
-            product.buyPrice,
-            product.sellPrice || "",
-            `"${product.category || ""}"`,
-            `"${product.supplier || ""}"`,
-            product.status,
-          ].join(",")
-        ),
-      ].join("\n");
-
-      // Download
-      const blob = new Blob([csvContent], {
-        type: "text/csv;charset=utf-8;",
-      });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `produtos_${new Date().toISOString().split("T")[0]}.csv`;
-      link.click();
-
-      toast({
-        title: "Dados exportados!",
-        description: "Arquivo CSV baixado com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível exportar os dados.",
-        variant: "destructive",
-      });
-    }
+  const handleExportData = () => {
+    exportProductsMutation.mutate();
   };
 
   const handleImportData = () => {
@@ -167,13 +124,13 @@ export default function ConfiguracoesPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Configurações</h1>
         <p className="text-muted-foreground">Personalize sua experiência</p>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -208,9 +165,14 @@ export default function ConfiguracoesPage() {
                 O email não pode ser alterado
               </p>
             </div>
-            <Button onClick={handleSaveProfile} disabled={loading}>
+            <Button
+              onClick={handleSaveProfile}
+              disabled={updateProfileMutation.isPending}
+            >
               <Save className="mr-2 h-4 w-4" />
-              {loading ? "Salvando..." : "Salvar Alterações"}
+              {updateProfileMutation.isPending
+                ? "Salvando..."
+                : "Salvar Alterações"}
             </Button>
           </CardContent>
         </Card>
@@ -226,14 +188,74 @@ export default function ConfiguracoesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Tema</Label>
-                <p className="text-sm text-muted-foreground">
-                  Escolha entre tema claro ou escuro
-                </p>
+            <div>
+              <Label>Tema</Label>
+              <p className="text-sm text-muted-foreground mb-4">
+                Escolha entre tema claro ou escuro
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Tema Claro */}
+                <div
+                  className={`cursor-pointer relative ${
+                    theme === "light" ? "ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setTheme("light")}
+                >
+                  <div className="border border-gray-200 rounded-md p-4 bg-white">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-300 rounded-md w-3/4"></div>
+                      <div className="h-3 bg-gray-300 rounded-md w-1/2"></div>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-gray-400"></div>
+                        <div className="h-3 bg-gray-300 rounded-md w-3/4"></div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-gray-400"></div>
+                        <div className="h-3 bg-gray-300 rounded-md w-2/3"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center mt-2">Claro</div>
+                  {theme === "light" && (
+                    <div className="absolute top-1 right-1 bg-primary rounded-full p-0.5">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Tema Escuro */}
+                <div
+                  className={`cursor-pointer relative ${
+                    theme === "dark" ? "ring-2 ring-white" : ""
+                  }`}
+                  onClick={() => setTheme("dark")}
+                >
+                  <div className="border border-gray-700 rounded-md p-4 bg-[#1e2b3f]">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-[#3a4a63] rounded-md w-3/4"></div>
+                      <div className="h-3 bg-[#3a4a63] rounded-md w-1/2"></div>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-[#5a6a83]"></div>
+                        <div className="h-3 bg-[#3a4a63] rounded-md w-3/4"></div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-[#5a6a83]"></div>
+                        <div className="h-3 bg-[#3a4a63] rounded-md w-2/3"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center mt-2">Escuro</div>
+                  {theme === "dark" && (
+                    <div className="absolute top-1 right-1 bg-white rounded-full p-0.5">
+                      <Check className="h-4 w-4 text-black" />
+                    </div>
+                  )}
+                </div>
               </div>
-              <ThemeToggle />
             </div>
           </CardContent>
         </Card>
@@ -256,9 +278,15 @@ export default function ConfiguracoesPage() {
                   Exportar todos os produtos em formato CSV
                 </p>
               </div>
-              <Button variant="outline" onClick={handleExportData}>
+              <Button
+                variant="outline"
+                onClick={handleExportData}
+                disabled={exportProductsMutation.isPending}
+              >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar
+                {exportProductsMutation.isPending
+                  ? "Exportando..."
+                  : "Exportar"}
               </Button>
             </div>
 

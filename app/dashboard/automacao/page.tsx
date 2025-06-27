@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductAutomation } from "@/components/automation-upload";
+import { ProductAutomation } from "@/components/upload/automation-upload";
 import {
   Card,
   CardContent,

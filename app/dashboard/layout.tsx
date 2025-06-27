@@ -48,11 +48,6 @@ const navigation = [
     icon: PackageCheck,
   },
   {
-    name: "Relatórios",
-    href: "/dashboard/relatorios",
-    icon: TrendingUp,
-  },
-  {
     name: "Configurações",
     href: "/dashboard/configuracoes",
     icon: Settings,
@@ -176,7 +171,7 @@ export default function DashboardLayout({
           <div className="flex h-16 items-center justify-between px-6 border-b border-border shrink-0">
             <div className="flex items-center gap-2">
               <Package className="h-8 w-8 text-primary" />
-              <span className="text-lg font-semibold">MyPurchase</span>
+              <span className="text-lg font-semibold">BrevBuy</span>
             </div>
             <Button
               variant="ghost"
