@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ProductListClient } from "@/components/product/product-list-client";
+import { ProductList } from "@/components/product/product-list";
 import { AddProductDialog } from "@/components/product/add-product-dialog";
 import { Package } from "lucide-react";
 
@@ -50,7 +50,7 @@ export default function ProdutosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductListClient />
+          <ProductList />
         </CardContent>
       </Card>
     </div>

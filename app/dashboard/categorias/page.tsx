@@ -26,8 +26,9 @@ export default function CategoriasPage() {
           </p>
         </div>
         <Button onClick={() => setAddingCategory(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Categoria
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline sm:hidden">Adicionar</span>
+          <span className="hidden sm:inline">Adicionar Categoria</span>
         </Button>
       </div>
 

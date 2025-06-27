@@ -31,39 +31,43 @@ function BarChart({
     return <div className="text-center text-muted-foreground">Sem dados</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {data.slice(0, 5).map((item, index) => (
         <div key={index} className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="font-medium truncate">{item.name}</span>
-            <span className="text-muted-foreground">
+          <div className="flex justify-between text-xs sm:text-sm">
+            <span className="font-medium truncate max-w-[120px] sm:max-w-none">
+              {item.name}
+            </span>
+            <span className="text-muted-foreground flex-shrink-0 ml-2">
               R$ {item.profit.toFixed(2)}
             </span>
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-16 text-xs text-muted-foreground">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-12 sm:w-16 text-xs text-muted-foreground flex-shrink-0">
                 Investido
               </div>
-              <div className="flex-1 bg-muted rounded-full h-2">
+              <div className="flex-1 bg-muted rounded-full h-1.5 sm:h-2 min-w-0">
                 <div
-                  className="bg-blue-500 h-2 rounded-full transition-all"
+                  className="bg-blue-500 h-1.5 sm:h-2 rounded-full transition-all"
                   style={{ width: `${(item.invested / maxValue) * 100}%` }}
                 />
               </div>
-              <div className="w-20 text-xs text-right">
+              <div className="w-16 sm:w-20 text-xs text-right flex-shrink-0">
                 R$ {item.invested.toFixed(2)}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-16 text-xs text-muted-foreground">Vendido</div>
-              <div className="flex-1 bg-muted rounded-full h-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-12 sm:w-16 text-xs text-muted-foreground flex-shrink-0">
+                Vendido
+              </div>
+              <div className="flex-1 bg-muted rounded-full h-1.5 sm:h-2 min-w-0">
                 <div
-                  className="bg-green-500 h-2 rounded-full transition-all"
+                  className="bg-green-500 h-1.5 sm:h-2 rounded-full transition-all"
                   style={{ width: `${(item.sold / maxValue) * 100}%` }}
                 />
               </div>
-              <div className="w-20 text-xs text-right">
+              <div className="w-16 sm:w-20 text-xs text-right flex-shrink-0">
                 R$ {item.sold.toFixed(2)}
               </div>
             </div>
@@ -86,9 +90,10 @@ function PieChart({
     return <div className="text-center text-muted-foreground">Sem dados</div>;
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="relative w-32 h-32">
-        <svg viewBox="0 0 42 42" className="w-32 h-32">
+    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+      {/* Gráfico de Pizza */}
+      <div className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 flex-shrink-0">
+        <svg viewBox="0 0 42 42" className="w-full h-full">
           <circle
             cx="21"
             cy="21"
@@ -120,16 +125,23 @@ function PieChart({
           })}
         </svg>
       </div>
-      <div className="space-y-2">
+
+      {/* Legenda */}
+      <div className="space-y-1.5 sm:space-y-2 w-full sm:w-auto">
         {data.map((item, index) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+          <div
+            key={index}
+            className="flex items-center gap-2 text-xs sm:text-sm"
+          >
             <div
-              className="w-3 h-3 rounded-full"
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: item.color }}
             />
-            <span className="text-muted-foreground">{item.name}</span>
-            <span className="font-medium">{item.value}</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground truncate flex-1 sm:flex-initial">
+              {item.name}
+            </span>
+            <span className="font-medium flex-shrink-0">{item.value}</span>
+            <span className="text-xs text-muted-foreground flex-shrink-0">
               ({((item.value / total) * 100).toFixed(1)}%)
             </span>
           </div>
@@ -186,8 +198,10 @@ function PerformanceMetrics({ products }: { products: any[] }) {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {metrics.map((metric, index) => (
         <div key={index} className="text-center space-y-1">
-          <div className="text-2xl font-bold">{metric.value}</div>
-          <div className="text-sm text-muted-foreground">{metric.label}</div>
+          <div className="text-xl sm:text-2xl font-bold">{metric.value}</div>
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            {metric.label}
+          </div>
         </div>
       ))}
     </div>
@@ -285,34 +299,34 @@ function DashboardCharts() {
       </Card>
 
       {/* Gráficos lado a lado */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Gráfico de Pizza - Distribuição por Categoria */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               Distribuição por Categoria
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Quantidade de produtos por categoria
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <PieChart data={chartData.categoryDistribution} />
           </CardContent>
         </Card>
 
         {/* Gráfico de Barras - Performance por Categoria */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />
               Performance por Categoria
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Investimento vs Receita por categoria (Top 5)
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <BarChart data={chartData.categoryPerformance} />
           </CardContent>
         </Card>

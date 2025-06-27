@@ -134,9 +134,10 @@ export function AddProductDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Adicionar Produto
+        <Button className="gap-1 sm:gap-2" size="sm">
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline sm:hidden">Adicionar</span>
+          <span className="hidden sm:inline">Adicionar Produto</span>
         </Button>
       </DialogTrigger>
       <DialogContent

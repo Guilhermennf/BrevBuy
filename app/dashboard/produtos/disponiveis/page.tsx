@@ -6,9 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ProductList } from "@/components/product/product-list";
 import { ProductListSkeleton } from "@/components/product/product-list-skeleton";
 import { Package } from "lucide-react";
+import { ProductList } from "@/components/product/product-list";
 
 // Força renderização dinâmica para evitar problemas de build
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default function ProdutosDisponiveisPage() {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<ProductListSkeleton />}>
-            <ProductList filter="AVAILABLE" />
+            <ProductList filters={{ status: "AVAILABLE" }} />
           </Suspense>
         </CardContent>
       </Card>
