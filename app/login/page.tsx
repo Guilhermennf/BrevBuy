@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { loginSchema, LoginFormData } from "@/lib/validations";
 import { useAuthToast } from "@/hooks/use-auth-toast";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -103,9 +104,8 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="••••••••"
                   {...register("password")}
                   className="bg-background/50"

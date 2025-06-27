@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuthToast } from "@/hooks/use-auth-toast";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
@@ -128,10 +129,9 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
@@ -142,10 +142,9 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar senha</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
