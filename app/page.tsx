@@ -38,7 +38,9 @@ export default function LandingPage() {
   // Função simplificada para trocar de preview sem transição problemática
   const handlePreviewChange = (index: number) => {
     if (index === activePreview) return;
-    setActivePreview(index);
+    setTimeout(() => {
+      setActivePreview(index);
+    }, 200);
   };
 
   // Fechar menu quando clicar fora
@@ -265,7 +267,7 @@ export default function LandingPage() {
             </div>
 
             {/* Preview Image - Desktop */}
-            <div className="relative w-[45rem] h-[400px] overflow-hidden rounded-xl sm:w-auto lg:mt-0 lg:w-[67rem] lg:h-[500px] border">
+            <div className="relative w-[45rem] h-[400px] overflow-hidden rounded-xl sm:w-auto lg:mt-0 lg:w-[67rem] lg:h-[510px] border">
               {systemPreviews.map((preview, index) => (
                 <img
                   key={index}
@@ -309,16 +311,22 @@ export default function LandingPage() {
             </div>
 
             {/* Mobile Image */}
-            <div className="relative w-full h-[300px] sm:h-[400px] rounded-lg overflow-hidden border">
+            <div className="relative w-full h-[300px] sm:h-[400px] rounded-l-lg overflow-hidden border-l border-t border-b">
               {systemPreviews.map((preview, index) => (
-                <img
+                <div
                   key={index}
-                  src={preview.image.src}
-                  alt={`Preview do ${preview.title}`}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                    index === activePreview ? "opacity-100" : "opacity-0"
+                  className={`absolute inset-0 transition-all duration-500 ease-out ${
+                    index === activePreview
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-full"
                   }`}
-                />
+                >
+                  <img
+                    src={preview.image.src}
+                    alt={`Preview do ${preview.title}`}
+                    className="w-[200%] h-full object-cover object-left"
+                  />
+                </div>
               ))}
             </div>
           </div>
