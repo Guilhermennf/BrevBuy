@@ -33,17 +33,12 @@ const systemPreviews = [
 export default function LandingPage() {
   const { data: session } = useSession();
   const [activePreview, setActivePreview] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Função para trocar suavemente a imagem
+  // Função simplificada para trocar de preview sem transição problemática
   const handlePreviewChange = (index: number) => {
     if (index === activePreview) return;
-    setImageLoaded(false);
-    setTimeout(() => {
-      setActivePreview(index);
-      setImageLoaded(true);
-    }, 200); // tempo da transição de opacidade
+    setActivePreview(index);
   };
 
   // Fechar menu quando clicar fora
@@ -252,8 +247,8 @@ export default function LandingPage() {
                   onClick={() => handlePreviewChange(index)}
                   className={`p-6 rounded-lg transition-all duration-300 cursor-pointer border-l-4 ${
                     index === activePreview
-                      ? "bg-muted/10 border-primary"
-                      : "border-transparent hover:bg-muted/10 hover:border-muted-foreground/20"
+                      ? "bg-muted/30 border-primary"
+                      : "border-transparent hover:bg-muted/30 hover:border-muted-foreground/20"
                   }`}
                   style={{ borderLeftWidth: 4 }}
                 >
@@ -270,16 +265,17 @@ export default function LandingPage() {
             </div>
 
             {/* Preview Image - Desktop */}
-            <div className=" w-[45rem] overflow-hidden rounded-xl sm:w-auto lg:mt-0 lg:w-[67rem] border">
-              <img
-                src={systemPreviews[activePreview].image.src}
-                alt={`Preview do ${systemPreviews[activePreview].title}`}
-                className={`w-full h-full object-contain object-left rounded-lg transition-opacity duration-500 ${
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                }`}
-                key={activePreview}
-                onLoad={() => setImageLoaded(true)}
-              />
+            <div className="relative w-[45rem] h-[400px] overflow-hidden rounded-xl sm:w-auto lg:mt-0 lg:w-[67rem] lg:h-[500px] border">
+              {systemPreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview.image.src}
+                  alt={`Preview do ${preview.title}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    index === activePreview ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))}
             </div>
           </div>
 
@@ -313,16 +309,17 @@ export default function LandingPage() {
             </div>
 
             {/* Mobile Image */}
-            <div className="relative w-full lg:h-[500px] rounded-lg overflow-hidden">
-              <img
-                src={systemPreviews[activePreview].image.src}
-                alt={`Preview do ${systemPreviews[activePreview].title}`}
-                className={`w-full h-full object-contain transition-opacity duration-500 ${
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                }`}
-                key={activePreview}
-                onLoad={() => setImageLoaded(true)}
-              />
+            <div className="relative w-full h-[300px] sm:h-[400px] rounded-lg overflow-hidden border">
+              {systemPreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview.image.src}
+                  alt={`Preview do ${preview.title}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    index === activePreview ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
