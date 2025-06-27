@@ -4,67 +4,67 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 
 ## ✨ Funcionalidades
 
--   **📦 Gestão de Produtos**: Cadastro, edição e exclusão de produtos
--   **💰 Controle Financeiro**: Acompanhamento de lucros e perdas
--   **📊 Dashboard**: Estatísticas de vendas e produtos em tempo real
--   **🔄 Status de Produtos**: Marcar produtos como vendidos ou disponíveis
--   **🌙 Dark Mode**: Interface elegante com tema escuro padrão
--   **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
+- **📦 Gestão de Produtos**: Cadastro, edição e exclusão de produtos
+- **💰 Controle Financeiro**: Acompanhamento de lucros e perdas
+- **📊 Dashboard**: Estatísticas de vendas e produtos em tempo real
+- **🔄 Status de Produtos**: Marcar produtos como vendidos ou disponíveis
+- **🌙 Dark Mode**: Interface elegante com tema escuro padrão
+- **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
 
 ## 🚀 Tecnologias Utilizadas
 
 ### Frontend
 
--   **Next.js 14** - Framework React com App Router
--   **TypeScript** - Tipagem estática
--   **Tailwind CSS** - Estilização utilitária
--   **shadcn/ui** - Componentes UI modernos
--   **Lucide React** - Ícones consistentes
+- **Next.js 14** - Framework React com App Router
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização utilitária
+- **shadcn/ui** - Componentes UI modernos
+- **Lucide React** - Ícones consistentes
 
 ### Backend & Banco de Dados
 
--   **Prisma** - ORM moderno para TypeScript
--   **SQLite** - Banco de dados local
--   **Zod** - Validação de schemas
+- **Prisma** - ORM moderno para TypeScript
+- **SQLite** - Banco de dados local
+- **Zod** - Validação de schemas
 
 ### Formulários & UX
 
--   **React Hook Form** - Gerenciamento de formulários
--   **React Hot Toast** - Notificações elegantes
--   **Next Themes** - Gerenciamento de temas
+- **React Hook Form** - Gerenciamento de formulários
+- **React Hot Toast** - Notificações elegantes
+- **Next Themes** - Gerenciamento de temas
 
 ## 📋 Pré-requisitos
 
--   Node.js 18.17 ou superior
--   npm ou yarn
+- Node.js 18.17 ou superior
+- npm ou yarn
 
 ## ⚡ Instalação e Configuração
 
 1. **Clone o repositório**
 
-    ```bash
-    git clone <url-do-repositorio>
-    cd my-purchase
-    ```
+   ```bash
+   git clone https://github.com/Guilhermennf/BrevBuy.git
+   cd BrevBuy
+   ```
 
 2. **Instale as dependências**
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. **Configure o banco de dados**
 
-    ```bash
-    npx prisma db push
-    npx prisma generate
-    ```
+   ```bash
+   npx prisma db push
+   npx prisma generate
+   ```
 
 4. **Execute o projeto**
 
-    ```bash
-    npm run dev
-    ```
+   ```bash
+   npm run dev
+   ```
 
 5. **Acesse a aplicação**
    Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
@@ -75,12 +75,12 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 
 1. Clique no botão "Adicionar Produto"
 2. Preencha as informações do produto:
-    - Nome (obrigatório)
-    - Descrição
-    - Preço de compra (obrigatório)
-    - Categoria
-    - Fornecedor
-    - URL da imagem
+   - Nome (obrigatório)
+   - Descrição
+   - Preço de compra (obrigatório)
+   - Categoria
+   - Fornecedor
+   - URL da imagem
 3. Clique em "Adicionar"
 
 ### Marcando como Vendido
@@ -94,15 +94,15 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 
 O dashboard mostra automaticamente:
 
--   Total investido
--   Total vendido
--   Lucro total e margem
--   Produtos disponíveis
+- Total investido
+- Total vendido
+- Lucro total e margem
+- Produtos disponíveis
 
 ## 🎨 Estrutura do Projeto
 
 ```
-my-purchase/
+BrevBuy/
 ├── app/                    # Páginas e API routes (App Router)
 │   ├── api/               # Endpoints da API
 │   │   └── products/      # CRUD de produtos
@@ -123,11 +123,11 @@ my-purchase/
 
 ## 🔧 Scripts Disponíveis
 
--   `npm run dev` - Executa em desenvolvimento
--   `npm run build` - Constrói para produção
--   `npm run start` - Executa a versão de produção
--   `npm run lint` - Executa o linter
--   `npx prisma studio` - Interface visual do banco
+- `npm run dev` - Executa em desenvolvimento
+- `npm run build` - Constrói para produção
+- `npm run start` - Executa a versão de produção
+- `npm run lint` - Executa o linter
+- `npx prisma studio` - Interface visual do banco
 
 ## 🤝 Contribuindo
 
@@ -143,8 +143,8 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ## 🐛 Reportar Issues
 
-Encontrou um bug? [Abra uma issue](https://github.com/seu-usuario/my-purchase/issues) detalhando o problema.
+Encontrou um bug? [Abra uma issue](https://github.com/Guilhermennf/BrevBuy/issues) detalhando o problema.
 
 ---
 
-Desenvolvido com ❤️ usando as melhores práticas do mercado.
+Desenvolvido por Guilherme Nunes
