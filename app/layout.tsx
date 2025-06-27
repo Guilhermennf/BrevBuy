@@ -11,7 +11,7 @@ import packageIcon from "@/assets/images/package.png";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sistema de Gestão de Produtos",
+  title: "BrevBuy",
   icons: {
     icon: packageIcon.src,
   },
