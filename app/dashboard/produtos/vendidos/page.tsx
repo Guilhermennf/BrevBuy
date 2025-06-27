@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { ProductListClient } from "@/components/product/product-list-client";
+import { ProductList } from "@/components/product/product-list";
 
 export default function ProdutosVendidosPage() {
   return (
@@ -17,7 +17,7 @@ export default function ProdutosVendidosPage() {
 
       <Card>
         <CardContent>
-          <ProductListClient filters={{ status: "SOLD" }} />
+          <ProductList filters={{ status: "SOLD" }} />
         </CardContent>
       </Card>
     </div>
