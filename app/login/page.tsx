@@ -125,7 +125,15 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-2 space-y-4 text-center">
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Esqueceu sua senha?
+                </Link>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Não tem uma conta?{" "}
                 <Link href="/register" className="text-primary hover:underline">

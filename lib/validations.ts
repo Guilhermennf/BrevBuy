@@ -106,3 +106,25 @@ export const uploadImageSchema = z.object({
 });
 
 export type UploadImageFormData = z.infer<typeof uploadImageSchema>;
+
+// Esquemas de validação para Reset de Senha
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Email inválido"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Token é obrigatório"),
+    password: z
+      .string()
+      .min(6, "Senha deve ter pelo menos 6 caracteres")
+      .max(100, "Senha deve ter no máximo 100 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
