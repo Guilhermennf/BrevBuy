@@ -126,6 +126,7 @@ export function ProductActions({ product }: ProductActionsProps) {
     formData.append("buyPrice", String(product.buyPrice));
     formData.append("categoryId", product.categoryId || "");
     formData.append("supplier", product.supplier || "");
+    formData.append("quantity", "1"); // Sempre duplica uma unidade
 
     // Processar imagem se existir
     if (product.image) {

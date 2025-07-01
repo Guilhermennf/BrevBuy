@@ -66,6 +66,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           buyPrice: product.buyPrice,
           categoryId: product.categoryId || "",
           supplier: product.supplier || "",
+          quantity: 1,
           image: null,
         }
       : {
@@ -74,6 +75,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           buyPrice: 0,
           categoryId: "",
           supplier: "",
+          quantity: 1,
           image: null,
         },
   });
@@ -89,6 +91,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     formData.append("buyPrice", String(data.buyPrice));
     formData.append("categoryId", data.categoryId || "");
     formData.append("supplier", data.supplier || "");
+    formData.append("quantity", String(data.quantity || 1));
     if (data.image) {
       formData.append("file", data.image);
     }
@@ -171,6 +174,26 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           placeholder="Nome do fornecedor..."
         />
       </div>
+
+      {!product && (
+        <div className="space-y-2">
+          <Label htmlFor="quantity">Quantidade *</Label>
+          <Input
+            id="quantity"
+            type="number"
+            min="1"
+            max="100"
+            {...register("quantity", { valueAsNumber: true })}
+            placeholder="1"
+          />
+          {errors.quantity && typeof errors.quantity.message === "string" && (
+            <p className="text-sm text-red-500">{errors.quantity.message}</p>
+          )}
+          <p className="text-xs text-gray-500">
+            Se quantidade for maior que 1, múltiplas unidades serão criadas
+          </p>
+        </div>
+      )}
 
       <Controller
         name="image"
