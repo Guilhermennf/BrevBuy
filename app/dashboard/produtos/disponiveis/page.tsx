@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -6,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ProductListSkeleton } from "@/components/product/product-list-skeleton";
 import { Package } from "lucide-react";
 import { ProductList } from "@/components/product/product-list";
 
@@ -34,9 +32,7 @@ export default function ProdutosDisponiveisPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<ProductListSkeleton />}>
-            <ProductList filters={{ status: "AVAILABLE" }} />
-          </Suspense>
+          <ProductList filters={{ status: "AVAILABLE" }} />
         </CardContent>
       </Card>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import {
   useCategories,
   useDeleteCategory,
@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -21,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, Package } from "lucide-react";
-import { CategorySkeleton } from "@/components/category/category-skeleton";
+import { LoadingSkeletonWrapper } from "../ui/loading-skeleton-wrapper";
 
 function CategoriesContent() {
   const { data: categories = [] } = useCategories();
@@ -166,17 +165,15 @@ function CategoriesContent() {
 }
 
 export function CategoriesList() {
+  const { isLoading } = useCategories();
+
   return (
-    <Suspense
-      fallback={
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <CategorySkeleton key={i} />
-          ))}
-        </div>
-      }
+    <LoadingSkeletonWrapper
+      isLoading={isLoading}
+      skeletonType="card"
+      skeletonCount={6}
     >
       <CategoriesContent />
-    </Suspense>
+    </LoadingSkeletonWrapper>
   );
 }

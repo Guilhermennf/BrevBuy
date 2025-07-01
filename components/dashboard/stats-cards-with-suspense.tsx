@@ -1,16 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
 import { StatsCards } from "./stats-cards";
-import { StatsCardsSkeleton } from "./stats-cards-skeleton";
 import { useProducts } from "@/hooks/use-products-query";
+import { LoadingSkeletonWrapper } from "@/components/ui/loading-skeleton-wrapper";
 
 function StatsCardsWrapper() {
-  const { data: products, isLoading, error } = useProducts();
-
-  if (isLoading) {
-    return <StatsCardsSkeleton />;
-  }
+  const { error, isLoading } = useProducts();
 
   if (error) {
     return (
@@ -20,13 +15,17 @@ function StatsCardsWrapper() {
     );
   }
 
-  return <StatsCards />;
+  return (
+    <LoadingSkeletonWrapper
+      isLoading={isLoading}
+      skeletonType="grid"
+      skeletonCount={4}
+    >
+      <StatsCards />
+    </LoadingSkeletonWrapper>
+  );
 }
 
 export function StatsCardsWithSuspense() {
-  return (
-    <Suspense fallback={<StatsCardsSkeleton />}>
-      <StatsCardsWrapper />
-    </Suspense>
-  );
+  return <StatsCardsWrapper />;
 }

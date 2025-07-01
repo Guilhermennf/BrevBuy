@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ProductActions } from "@/components/product/product-actions";
 import { ProductImage } from "@/components/product/product-image";
 import { useProducts, ProductsFilters } from "@/hooks/use-products-query";
-import { ProductListSkeleton } from "./product-list-skeleton";
+import { LoadingSkeletonWrapper } from "../ui/loading-skeleton-wrapper";
 
 interface ProductListProps {
   filters?: ProductsFilters;
@@ -37,7 +37,7 @@ function ProductListComponent({ filters }: ProductListProps) {
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-1">
       {products.map((product) => (
-        <Card key={product.id} className="p-3 sm:p-4">
+        <Card key={product.id} className="p-3 sm:p-4  overflow-y-auto ">
           <CardContent className="p-0">
             {/* Layout Mobile - Vertical */}
             <div className="flex flex-col sm:hidden space-y-3">
@@ -266,14 +266,17 @@ function ProductListComponent({ filters }: ProductListProps) {
 }
 
 export function ProductList({ filters }: ProductListProps) {
-  const { isLoading, error } = useProducts(filters);
+  const { error, isLoading } = useProducts(filters);
 
-  if (isLoading) return <ProductListSkeleton />;
   if (error) return <div>Erro ao carregar produtos</div>;
 
   return (
-    <Suspense fallback={<ProductListSkeleton />}>
+    <LoadingSkeletonWrapper
+      isLoading={isLoading}
+      skeletonType="list"
+      skeletonCount={3}
+    >
       <ProductListComponent filters={filters} />
-    </Suspense>
+    </LoadingSkeletonWrapper>
   );
 }
