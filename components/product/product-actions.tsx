@@ -7,6 +7,7 @@ import {
   Trash2,
   ShoppingCart,
   AlertTriangle,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +36,44 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ProductForm } from "@/components/product/product-form";
 import { SellProductForm } from "@/components/product/sell-product-form";
-import { useDeleteProduct } from "@/hooks/use-products-query";
+import { useDeleteProduct, useCreateProduct } from "@/hooks/use-products-query";
+
+/**
+ * Converte diferentes formatos de dados de imagem para Uint8Array
+ *
+ * O Prisma pode retornar dados de imagem em diferentes formatos dependendo do driver:
+ * - Uint8Array (formato ideal)
+ * - Buffer object com propriedade data
+ * - Array simples de bytes
+ *
+ * @param image - Dados da imagem em qualquer formato suportado
+ * @returns Uint8Array dos dados da imagem ou null se o formato não for reconhecido
+ */
+function convertImageToUint8Array(
+  image: Uint8Array | { data: number[] } | number[] | null
+): Uint8Array | null {
+  if (!image) return null;
+
+  if (image instanceof Uint8Array) {
+    return image;
+  }
+
+  if (
+    typeof image === "object" &&
+    "data" in image &&
+    Array.isArray(image.data)
+  ) {
+    // Prisma retorna como { type: 'Buffer', data: [...] }
+    return new Uint8Array(image.data);
+  }
+
+  if (Array.isArray(image)) {
+    // Array simples de bytes
+    return new Uint8Array(image);
+  }
+
+  return null;
+}
 
 interface ProductWithCategory {
   id: string;
@@ -67,14 +105,43 @@ interface ProductActionsProps {
 export function ProductActions({ product }: ProductActionsProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [sellOpen, setSellOpen] = useState(false);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const deleteProductMutation = useDeleteProduct();
+  const createProductMutation = useCreateProduct();
 
   const handleDelete = () => {
     deleteProductMutation.mutate(product.id, {
       onSuccess: () => {
         setDeleteOpen(false);
+      },
+    });
+  };
+
+  const handleDuplicate = () => {
+    const formData = new FormData();
+    formData.append("name", `${product.name} - Cópia`);
+    formData.append("description", product.description || "");
+    formData.append("buyPrice", String(product.buyPrice));
+    formData.append("categoryId", product.categoryId || "");
+    formData.append("supplier", product.supplier || "");
+
+    // Processar imagem se existir
+    if (product.image) {
+      const imageData = convertImageToUint8Array(product.image);
+
+      if (imageData && imageData.length > 0) {
+        const imageFile = new File([imageData], "product-image.jpg", {
+          type: "image/jpeg",
+        });
+        formData.append("file", imageFile);
+      }
+    }
+
+    createProductMutation.mutate(formData, {
+      onSuccess: () => {
+        setDuplicateOpen(false);
       },
     });
   };
@@ -100,6 +167,11 @@ export function ProductActions({ product }: ProductActionsProps) {
               Marcar como Vendido
             </DropdownMenuItem>
           )}
+
+          <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>
+            <Copy className="mr-2 h-4 w-4" />
+            Duplicar
+          </DropdownMenuItem>
 
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -143,6 +215,44 @@ export function ProductActions({ product }: ProductActionsProps) {
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={duplicateOpen} onOpenChange={setDuplicateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Copy className="h-5 w-5 text-blue-600" />
+              Duplicar Produto
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja criar uma cópia do produto{" "}
+              <strong>"{product.name}"</strong>?
+              <br />
+              <span className="text-gray-600 text-sm mt-2 block">
+                O produto será duplicado com o nome "{product.name} - Cópia".
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDuplicate}
+              className="bg-blue-600 hover:bg-blue-700 focus:ring-blue-600 text-white"
+            >
+              {createProductMutation.isPending ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Duplicando...
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Duplicar Produto
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
