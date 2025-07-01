@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductActions } from "@/components/product/product-actions";
 import { ProductImage } from "@/components/product/product-image";
-import { ProductSkeleton } from "@/components/product/product-skeleton";
 import { useProducts, ProductsFilters } from "@/hooks/use-products-query";
+import { ProductListSkeleton } from "./product-list-skeleton";
 
 interface ProductListProps {
   filters?: ProductsFilters;
@@ -266,16 +266,13 @@ function ProductListComponent({ filters }: ProductListProps) {
 }
 
 export function ProductList({ filters }: ProductListProps) {
+  const { isLoading, error } = useProducts(filters);
+
+  if (isLoading) return <ProductListSkeleton />;
+  if (error) return <div>Erro ao carregar produtos</div>;
+
   return (
-    <Suspense
-      fallback={
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-1">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <ProductSkeleton key={i} />
-          ))}
-        </div>
-      }
-    >
+    <Suspense fallback={<ProductListSkeleton />}>
       <ProductListComponent filters={filters} />
     </Suspense>
   );

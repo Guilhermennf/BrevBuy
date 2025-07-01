@@ -8,9 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { ProductList } from "@/components/product/product-list";
-import { Suspense } from "react";
 import { Package } from "lucide-react";
-import { ProductListSkeleton } from "@/components/product/product-list-skeleton";
 
 export default function ProdutosVendidosPage() {
   return (
@@ -33,9 +31,7 @@ export default function ProdutosVendidosPage() {
           <CardDescription>Produtos que já foram vendidos</CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<ProductListSkeleton />}>
-            <ProductList filters={{ status: "SOLD" }} />
-          </Suspense>
+          <ProductList filters={{ status: "SOLD" }} />
         </CardContent>
       </Card>
     </div>

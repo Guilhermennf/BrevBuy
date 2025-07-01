@@ -58,7 +58,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     control,
     setValue,
     watch,
-  } = useForm<any>({
+  } = useForm<ProductFormData>({
     defaultValues: product
       ? {
           name: product.name,
@@ -67,7 +67,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           categoryId: product.categoryId || "",
           supplier: product.supplier || "",
           quantity: 1,
-          image: null,
+          image: undefined,
         }
       : {
           name: "",
@@ -76,15 +76,15 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           categoryId: "",
           supplier: "",
           quantity: 1,
-          image: null,
+          image: undefined,
         },
   });
 
   useEffect(() => {
-    if (product) setValue("image", null);
+    if (product) setValue("image", undefined);
   }, [product, setValue]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ProductFormData) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("description", data.description || "");
@@ -92,7 +92,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     formData.append("categoryId", data.categoryId || "");
     formData.append("supplier", data.supplier || "");
     formData.append("quantity", String(data.quantity || 1));
-    if (data.image) {
+    if (data.image instanceof Blob) {
       formData.append("file", data.image);
     }
 
@@ -200,7 +200,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         control={control}
         render={({ field }) => (
           <ImageUpload
-            value={field.value}
+            value={field.value as unknown as File}
             onChange={field.onChange}
             disabled={loading}
           />

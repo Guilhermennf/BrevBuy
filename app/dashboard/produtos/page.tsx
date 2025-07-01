@@ -11,12 +11,12 @@ import {
 import { ProductList } from "@/components/product/product-list";
 import { AddProductDialog } from "@/components/product/add-product-dialog";
 import { Package } from "lucide-react";
+import { ProductsFilters } from "@/hooks/use-products-query";
 
 export default function ProdutosPage() {
-  const [filters, setFilters] = useState<{
-    categoryId?: string;
-    status?: string;
-  }>({});
+  const [filters, setFilters] = useState<ProductsFilters>({
+    status: "ALL",
+  });
 
   return (
     <div className="space-y-6">
@@ -29,11 +29,6 @@ export default function ProdutosPage() {
         </div>
         <AddProductDialog />
       </div>
-
-      {/* <ProductsFilter
-                onFilterChange={setFilters}
-                initialFilters={filters}
-            /> */}
 
       <Card>
         <CardHeader>
@@ -50,7 +45,7 @@ export default function ProdutosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductList />
+          <ProductList filters={filters} />
         </CardContent>
       </Card>
     </div>
