@@ -232,33 +232,50 @@ const exportProducts = async (): Promise<Blob> => {
     throw new Error("Nenhum produto encontrado para exportar");
   }
 
-  // Criar CSV
   const headers = [
-    "Nome",
-    "Descrição",
-    "Preço de Compra",
-    "Preço de Venda",
-    "Categoria",
-    "Fornecedor",
-    "Status",
+    "NOME",
+    "DESCRIÇÃO",
+    "PREÇO DE COMPRA",
+    "PREÇO DE VENDA",
+    "CATEGORIA",
+    "FORNECEDOR",
+    "STATUS",
   ];
 
+  // Função para escapar campos CSV
+  const escapeCsvField = (field: any): string => {
+    if (field === null || field === undefined) return '""';
+    const stringField = String(field);
+    // Se contém vírgula, quebra de linha ou aspas, precisa ser escapado
+    if (
+      stringField.includes(",") ||
+      stringField.includes("\n") ||
+      stringField.includes('"')
+    ) {
+      return `"${stringField.replace(/"/g, '""')}"`;
+    }
+    return `"${stringField}"`;
+  };
+
   const csvContent = [
-    headers.join(","),
+    headers.join(";"),
     ...products.map((product: any) =>
       [
-        `"${product.name}"`,
-        `"${product.description || ""}"`,
+        escapeCsvField(product.name),
+        escapeCsvField(product.description),
         product.buyPrice,
         product.sellPrice || "",
-        `"${product.category || ""}"`,
-        `"${product.supplier || ""}"`,
+        escapeCsvField(product.category?.name),
+        escapeCsvField(product.supplier),
         product.status,
-      ].join(",")
+      ].join(";")
     ),
   ].join("\n");
 
-  return new Blob([csvContent], {
+  // Adicionar BOM para UTF-8
+  const excelContent = `\ufeff${csvContent}`;
+
+  return new Blob([excelContent], {
     type: "text/csv;charset=utf-8;",
   });
 };

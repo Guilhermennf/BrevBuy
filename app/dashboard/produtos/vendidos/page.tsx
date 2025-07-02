@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { ProductList } from "@/components/product/product-list";
+import { ExportProductsSheet } from "@/components/product/export-products-sheet";
 import { Package } from "lucide-react";
 
 export default function ProdutosVendidosPage() {
@@ -20,10 +21,18 @@ export default function ProdutosVendidosPage() {
             Produtos que já foram vendidos
           </p>
         </div>
+        {/* <ExportProductsSheet /> */}
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Produtos Vendidos
+          </CardTitle>
+          <CardDescription>Produtos que já foram vendidos</CardDescription>
+        </CardHeader>
+        <CardContent>
           <ProductList filters={{ status: "SOLD" }} />
         </CardContent>
       </Card>

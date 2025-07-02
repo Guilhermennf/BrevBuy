@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useUpdateProfile } from "@/hooks/use-profile";
-import { useExportProducts } from "@/hooks/use-products-query";
 import {
   Card,
   CardContent,
@@ -14,16 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Settings,
-  User,
-  Database,
-  Palette,
-  Save,
-  Download,
-  Upload,
-  Check,
-} from "lucide-react";
+import { Settings, User, Palette, Save, Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
 
@@ -31,7 +21,6 @@ export default function ConfiguracoesPage() {
   const { data: session, update: updateSession } = useSession();
   const { theme, setTheme } = useTheme();
   const updateProfileMutation = useUpdateProfile();
-  const exportProductsMutation = useExportProducts();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -80,47 +69,6 @@ export default function ConfiguracoesPage() {
         },
       }
     );
-  };
-
-  const handleExportData = () => {
-    exportProductsMutation.mutate();
-  };
-
-  const handleImportData = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".csv";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      try {
-        const text = await file.text();
-        const lines = text.split("\n");
-        const headers = lines[0].split(",");
-
-        toast({
-          title: "Importação iniciada",
-          description: `Processando ${lines.length - 1} linhas...`,
-        });
-
-        // Aqui você implementaria a lógica de importação
-        // Por enquanto, apenas simular
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        toast({
-          title: "Dados importados!",
-          description: "Produtos importados com sucesso.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erro na importação",
-          description: "Verifique o formato do arquivo CSV.",
-          variant: "destructive",
-        });
-      }
-    };
-    input.click();
   };
 
   return (
@@ -256,64 +204,6 @@ export default function ConfiguracoesPage() {
                   )}
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Gerenciar Dados
-            </CardTitle>
-            <CardDescription>
-              Backup e importação dos seus produtos
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <Label>Backup de Dados</Label>
-                <p className="text-sm text-muted-foreground">
-                  Exportar todos os produtos em formato CSV
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={handleExportData}
-                disabled={exportProductsMutation.isPending}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                {exportProductsMutation.isPending
-                  ? "Exportando..."
-                  : "Exportar"}
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <Label>Importar Dados</Label>
-                <p className="text-sm text-muted-foreground">
-                  Importar produtos de um arquivo CSV
-                </p>
-              </div>
-              <Button variant="outline" onClick={handleImportData}>
-                <Upload className="mr-2 h-4 w-4" />
-                Importar
-              </Button>
-            </div>
-
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-medium mb-2">
-                Formato do CSV para importação:
-              </h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                O arquivo deve conter as seguintes colunas:
-              </p>
-              <code className="text-xs bg-background p-2 rounded block">
-                Nome,Descrição,Preço de Compra,Preço de
-                Venda,Categoria,Fornecedor,Status
-              </code>
             </div>
           </CardContent>
         </Card>

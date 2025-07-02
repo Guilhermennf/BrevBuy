@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { ProductList } from "@/components/product/product-list";
 import { AddProductDialog } from "@/components/product/add-product-dialog";
+import { ExportProductsSheet } from "@/components/product/export-products-sheet";
 import { Package } from "lucide-react";
 import { ProductsFilters } from "@/hooks/use-products-query";
 
@@ -27,11 +28,27 @@ export default function ProdutosPage() {
             Gerencie todos os seus produtos
           </p>
         </div>
-        <AddProductDialog />
+        <div className="flex items-center gap-2">
+          {/* <ExportProductsSheet /> */}
+          <AddProductDialog />
+        </div>
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            {filters.categoryId || filters.status
+              ? "Produtos Filtrados"
+              : "Todos os Produtos"}
+          </CardTitle>
+          <CardDescription>
+            {filters.categoryId || filters.status
+              ? "Produtos correspondentes aos filtros aplicados"
+              : "Lista completa de produtos cadastrados"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <ProductList filters={filters} />
         </CardContent>
       </Card>

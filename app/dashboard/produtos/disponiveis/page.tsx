@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Package } from "lucide-react";
 import { ProductList } from "@/components/product/product-list";
+import { ExportProductsSheet } from "@/components/product/export-products-sheet";
 
 // Força renderização dinâmica para evitar problemas de build
 export const dynamic = "force-dynamic";
@@ -19,10 +20,20 @@ export default function ProdutosDisponiveisPage() {
           <h1 className="text-3xl font-bold">Produtos Disponíveis</h1>
           <p className="text-muted-foreground">Produtos prontos para venda</p>
         </div>
+        {/* <ExportProductsSheet /> */}
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Produtos Disponíveis
+          </CardTitle>
+          <CardDescription>
+            Produtos que ainda não foram vendidos
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <ProductList filters={{ status: "AVAILABLE" }} />
         </CardContent>
       </Card>
