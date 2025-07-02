@@ -125,7 +125,7 @@ export default function ConfiguracoesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Palette className="h-5 w-5" />
@@ -142,7 +142,7 @@ export default function ConfiguracoesPage() {
                 Escolha entre tema claro ou escuro
               </p>
               <div className="grid grid-cols-2 gap-4">
-                {/* Tema Claro */}
+                // Tema Claro 
                 <div
                   className={`cursor-pointer relative ${
                     theme === "light" ? "ring-2 ring-primary" : ""
@@ -173,7 +173,7 @@ export default function ConfiguracoesPage() {
                   )}
                 </div>
 
-                {/* Tema Escuro */}
+                // Tema Escuro 
                 <div
                   className={`cursor-pointer relative ${
                     theme === "dark" ? "ring-2 ring-white" : ""
@@ -206,7 +206,7 @@ export default function ConfiguracoesPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

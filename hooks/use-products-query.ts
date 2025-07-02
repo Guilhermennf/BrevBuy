@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductFormData, SellProductFormData } from "@/lib/validations";
 
@@ -130,8 +131,10 @@ export const productsKeys = {
 
 // Hooks
 export function useProducts(filters?: ProductsFilters) {
+  const queryKey = useMemo(() => productsKeys.list(filters), [filters]);
+
   return useQuery({
-    queryKey: productsKeys.list(filters),
+    queryKey,
     queryFn: () => fetchProducts(filters),
   });
 }

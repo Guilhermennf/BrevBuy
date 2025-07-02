@@ -1,41 +1,33 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { ProductList } from "@/components/product/product-list";
+import { useProducts } from "@/hooks/use-products-query";
+import { ProductsDataTable } from "@/components/product/products-data-table";
+import { AddProductDialog } from "@/components/product/add-product-dialog";
 import { ExportProductsSheet } from "@/components/product/export-products-sheet";
-import { Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, Download } from "lucide-react";
 
-export default function ProdutosVendidosPage() {
+export default function SoldProductsPage() {
+  const { data: products = [], isLoading } = useProducts({ status: "SOLD" });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Produtos Vendidos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Produtos Vendidos
+          </h1>
           <p className="text-muted-foreground">
-            Produtos que já foram vendidos
+            Visualize o histórico de todos os produtos vendidos.
           </p>
         </div>
-        {/* <ExportProductsSheet /> */}
+        <div className="flex items-center gap-2">
+          {/* <ExportProductsSheet /> */}
+          <AddProductDialog />
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Produtos Vendidos
-          </CardTitle>
-          <CardDescription>Produtos que já foram vendidos</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProductList filters={{ status: "SOLD" }} />
-        </CardContent>
-      </Card>
+      <ProductsDataTable products={products} isLoading={isLoading} />
     </div>
   );
 }
