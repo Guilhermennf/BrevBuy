@@ -22,7 +22,7 @@ interface Stats {
 }
 
 export function StatsCards() {
-  const { data: products = [], isLoading: loading } = useProducts();
+  const { data: products } = useProducts();
 
   const calculateStats = (products: any[]): Stats => {
     const totalProducts = products.length;
@@ -59,28 +59,9 @@ export function StatsCards() {
   };
 
   const stats = useMemo(() => {
-    if (products.length === 0) return null;
+    if (!products || products.length === 0) return null;
     return calculateStats(products);
   }, [products]);
-
-  if (loading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-4 bg-muted animate-pulse rounded" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 w-24 bg-muted animate-pulse rounded mb-2" />
-              <div className="h-3 w-16 bg-muted animate-pulse rounded" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
 
   if (!stats) {
     return (

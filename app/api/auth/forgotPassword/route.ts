@@ -62,25 +62,12 @@ export async function POST(request: NextRequest) {
       process.env.NEXTAUTH_URL || "http://localhost:3000"
     }/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
-    console.log("=== LINK PARA REDEFINIR SENHA ===");
-    console.log(`Email: ${email}`);
-    console.log(`Link: ${resetUrl}`);
-    console.log("================================");
-
     // Verificar se as variáveis de ambiente estão configuradas
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.warn("⚠️  AVISO: Variáveis de ambiente EMAIL_USER e EMAIL_PASS não configuradas.");
-      console.log("📝 Para configurar o envio de email:");
-      console.log("1. Crie um arquivo .env.local na raiz do projeto");
-      console.log("2. Adicione as seguintes variáveis:");
-      console.log("   EMAIL_USER=seu.email@gmail.com");
-      console.log("   EMAIL_PASS=sua-senha-de-app");
-      console.log("   EMAIL_FROM=noreply@seusite.com");
-      console.log("3. Para Gmail, você precisa gerar uma 'Senha de app' nas configurações de segurança");
-      
       // Retorna sucesso mesmo sem enviar email (para não quebrar o fluxo)
       return NextResponse.json({
-        message: "Se o email existir em nossa base, você receberá um link de redefinição de senha.",
+        message:
+          "Se o email existir em nossa base, você receberá um link de redefinição de senha.",
       });
     }
 
@@ -96,7 +83,6 @@ export async function POST(request: NextRequest) {
 
       // Verificar conexão com o servidor de email
       await transporter.verify();
-      console.log("✅ Conexão com servidor de email verificada");
 
       // Enviar email
       const info = await transporter.sendMail({
@@ -127,30 +113,7 @@ export async function POST(request: NextRequest) {
           </div>
         `,
       });
-
-      console.log("✅ Email enviado com sucesso:", info.messageId);
-
     } catch (emailError) {
-      console.error("❌ Erro ao enviar email:", emailError);
-      
-      // Logar detalhes específicos do erro
-      if (emailError instanceof Error) {
-        console.error("Mensagem do erro:", emailError.message);
-        
-        if (emailError.message.includes("Invalid login")) {
-          console.log("🔧 Dica: Verifique se o EMAIL_USER e EMAIL_PASS estão corretos");
-          console.log("   Para Gmail, use uma 'Senha de app' em vez da senha normal");
-        }
-        
-        if (emailError.message.includes("Missing credentials")) {
-          console.log("🔧 Dica: Certifique-se de que EMAIL_USER e EMAIL_PASS estão configurados");
-        }
-        
-        if (emailError.message.includes("self signed certificate")) {
-          console.log("🔧 Dica: Problema de certificado SSL. Tente configurar {secure: false}");
-        }
-      }
-      
       // Mesmo com erro de email, não quebra o fluxo para o usuário
       // Em produção, você pode querer registrar este erro em um sistema de monitoramento
     }

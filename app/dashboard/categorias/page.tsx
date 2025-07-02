@@ -1,20 +1,21 @@
 "use client";
 
-import { CategoriesList } from "@/components/category/categories-list";
-import { CategoryForm } from "@/components/category/category-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Tag } from "lucide-react";
+import { useCategories } from "@/hooks/use-categories-query";
+import { CategoriesDataTable } from "@/components/category/categories-data-table";
+import { CategoryActions } from "@/components/category/category-actions";
+import { Category } from "@/hooks/use-categories-query";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { CategoryForm } from "@/components/category/category-form";
 
-export default function CategoriasPage() {
+export default function CategoriesPage() {
   const [addingCategory, setAddingCategory] = useState(false);
+  const { data: categories = [], isLoading } = useCategories();
+
+  const actionsRenderer = (category: Category) => (
+    <CategoryActions category={category} />
+  );
 
   return (
     <div className="space-y-6">
@@ -32,22 +33,13 @@ export default function CategoriasPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Tag className="h-5 w-5" />
-            Suas Categorias
-          </CardTitle>
-          <CardDescription>
-            Gerencie as categorias dos seus produtos
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CategoriesList />
-        </CardContent>
-      </Card>
-
       <CategoryForm open={addingCategory} onOpenChange={setAddingCategory} />
+
+      <CategoriesDataTable
+        categories={categories}
+        isLoading={isLoading}
+        actionsRenderer={actionsRenderer}
+      />
     </div>
   );
 }

@@ -43,6 +43,12 @@ export const productSchema = z.object({
     .string()
     .max(100, "Nome do fornecedor deve ter no máximo 100 caracteres")
     .optional(),
+  quantity: z
+    .number({ required_error: "Quantidade é obrigatória" })
+    .int("Quantidade deve ser um número inteiro")
+    .min(1, "Quantidade deve ser pelo menos 1")
+    .max(100, "Quantidade máxima é 100")
+    .default(1),
   image: z.instanceof(Uint8Array).optional(),
 });
 

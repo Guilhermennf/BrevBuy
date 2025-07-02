@@ -58,7 +58,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
     control,
     setValue,
     watch,
-  } = useForm<any>({
+  } = useForm<ProductFormData>({
     defaultValues: product
       ? {
           name: product.name,
@@ -66,7 +66,8 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           buyPrice: product.buyPrice,
           categoryId: product.categoryId || "",
           supplier: product.supplier || "",
-          image: null,
+          quantity: 1,
+          image: undefined,
         }
       : {
           name: "",
@@ -74,22 +75,24 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           buyPrice: 0,
           categoryId: "",
           supplier: "",
-          image: null,
+          quantity: 1,
+          image: undefined,
         },
   });
 
   useEffect(() => {
-    if (product) setValue("image", null);
+    if (product) setValue("image", undefined);
   }, [product, setValue]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ProductFormData) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("description", data.description || "");
     formData.append("buyPrice", String(data.buyPrice));
     formData.append("categoryId", data.categoryId || "");
     formData.append("supplier", data.supplier || "");
-    if (data.image) {
+    formData.append("quantity", String(data.quantity || 1));
+    if (data.image instanceof Blob) {
       formData.append("file", data.image);
     }
 
@@ -172,12 +175,32 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         />
       </div>
 
+      {!product && (
+        <div className="space-y-2">
+          <Label htmlFor="quantity">Quantidade *</Label>
+          <Input
+            id="quantity"
+            type="number"
+            min="1"
+            max="100"
+            {...register("quantity", { valueAsNumber: true })}
+            placeholder="1"
+          />
+          {errors.quantity && typeof errors.quantity.message === "string" && (
+            <p className="text-sm text-red-500">{errors.quantity.message}</p>
+          )}
+          <p className="text-xs text-gray-500">
+            Se quantidade for maior que 1, múltiplas unidades serão criadas
+          </p>
+        </div>
+      )}
+
       <Controller
         name="image"
         control={control}
         render={({ field }) => (
           <ImageUpload
-            value={field.value}
+            value={field.value as unknown as File}
             onChange={field.onChange}
             disabled={loading}
           />

@@ -117,6 +117,21 @@
   -webkit-backdrop-filter: blur(4px);
 }
 
+/* Ensure modals don't interfere with page scroll */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  z-index: 60 !important;
+}
+
+[data-radix-dropdown-menu-content] {
+  z-index: 60 !important;
+}
+
+/* Prevent body scroll when modal is open */
+body[data-radix-dialog-overlay] {
+  overflow: hidden;
+}
+
 /* Image upload styles */
 .image-upload-container {
   transition: all 0.2s ease-in-out;

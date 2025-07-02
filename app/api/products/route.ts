@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
     const buyPrice = parseFloat(formData.get("buyPrice") as string);
     const categoryId = formData.get("categoryId") as string;
     const supplier = formData.get("supplier") as string;
+    const quantity = parseInt(formData.get("quantity") as string) || 1;
     const file = formData.get("file") as File | null;
 
     let imageBuffer: Buffer | undefined = undefined;
@@ -88,24 +89,61 @@ export async function POST(request: NextRequest) {
       imageBuffer = Buffer.from(bytes);
     }
 
-    const product = await prisma.product.create({
-      data: {
-        name,
-        description,
-        buyPrice,
-        categoryId: categoryId || null,
-        supplier,
-        image: imageBuffer,
-        userId: session.user.id,
-        status: "AVAILABLE",
-      },
-      include: {
-        category: true,
-      },
-    });
+    // Criar múltiplos produtos se quantidade > 1
+    const products = [];
+    const productData = {
+      name,
+      description,
+      buyPrice,
+      categoryId: categoryId || null,
+      supplier,
+      image: imageBuffer,
+      userId: session.user.id,
+      status: "AVAILABLE",
+    };
 
-    return NextResponse.json(product, { status: 201 });
+    if (quantity > 1) {
+      // Criar múltiplas instâncias
+      for (let i = 0; i < quantity; i++) {
+        const productName = quantity > 1 ? `${name} #${i + 1}` : name;
+        const product = await prisma.product.create({
+          data: {
+            ...productData,
+            name: productName,
+          },
+          include: {
+            category: true,
+          },
+        });
+        products.push(product);
+      }
+
+      return NextResponse.json(
+        {
+          message: `${quantity} produtos criados com sucesso`,
+          products,
+          count: quantity,
+        },
+        { status: 201 }
+      );
+    } else {
+      // Criar apenas um produto
+      const product = await prisma.product.create({
+        data: productData,
+        include: {
+          category: true,
+        },
+      });
+
+      return NextResponse.json(product, { status: 201 });
+    }
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Dados inválidos", details: error.errors },
+        { status: 400 }
+      );
+    }
     console.error("Erro ao criar produto:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor" },
