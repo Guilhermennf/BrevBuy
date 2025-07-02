@@ -35,9 +35,9 @@ function ProductListComponent({ filters }: ProductListProps) {
   }
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-1">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-1 overflow-y-auto">
       {products.map((product) => (
-        <Card key={product.id} className="p-3 sm:p-4  overflow-y-auto ">
+        <Card key={product.id} className="p-3 sm:p-4">
           <CardContent className="p-0">
             {/* Layout Mobile - Vertical */}
             <div className="flex flex-col sm:hidden space-y-3">
@@ -77,7 +77,9 @@ function ProductListComponent({ filters }: ProductListProps) {
                   </div>
                 </div>
                 <div className="flex-shrink-0">
-                  <ProductActions product={product} />
+                  <div className="relative">
+                    <ProductActions product={product} />
+                  </div>
                 </div>
               </div>
 
@@ -253,7 +255,9 @@ function ProductListComponent({ filters }: ProductListProps) {
                   </div>
 
                   <div className="flex-shrink-0 ml-4">
-                    <ProductActions product={product} />
+                    <div className="relative">
+                      <ProductActions product={product} />
+                    </div>
                   </div>
                 </div>
               </div>

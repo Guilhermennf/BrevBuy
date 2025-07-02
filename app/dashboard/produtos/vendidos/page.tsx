@@ -23,14 +23,7 @@ export default function ProdutosVendidosPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Produtos Vendidos
-          </CardTitle>
-          <CardDescription>Produtos que já foram vendidos</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ProductList filters={{ status: "SOLD" }} />
         </CardContent>
       </Card>

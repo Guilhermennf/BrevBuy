@@ -31,20 +31,7 @@ export default function ProdutosPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            {filters.categoryId || filters.status
-              ? "Produtos Filtrados"
-              : "Todos os Produtos"}
-          </CardTitle>
-          <CardDescription>
-            {filters.categoryId || filters.status
-              ? "Produtos correspondentes aos filtros aplicados"
-              : "Lista completa de produtos cadastrados"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ProductList filters={filters} />
         </CardContent>
       </Card>

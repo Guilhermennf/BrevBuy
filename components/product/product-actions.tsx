@@ -151,12 +151,12 @@ export function ProductActions({ product }: ProductActionsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0 relative">
             <span className="sr-only">Abrir menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" side="bottom" sideOffset={4}>
           <DropdownMenuItem onClick={() => setEditOpen(true)}>
             <Edit2 className="mr-2 h-4 w-4" />
             Editar
@@ -169,10 +169,12 @@ export function ProductActions({ product }: ProductActionsProps) {
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>
-            <Copy className="mr-2 h-4 w-4" />
-            Duplicar
-          </DropdownMenuItem>
+          {product.status !== "SOLD" && (
+            <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>
+              <Copy className="mr-2 h-4 w-4" />
+              Duplicar
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
           <DropdownMenuItem

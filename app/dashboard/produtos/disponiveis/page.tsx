@@ -22,16 +22,7 @@ export default function ProdutosDisponiveisPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Produtos Disponíveis
-          </CardTitle>
-          <CardDescription>
-            Produtos que ainda não foram vendidos
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ProductList filters={{ status: "AVAILABLE" }} />
         </CardContent>
       </Card>
