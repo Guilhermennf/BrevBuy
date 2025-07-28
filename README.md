@@ -1,6 +1,10 @@
-# 🛒 Sistema de Gestão de Produtos para Revenda
+# 🛒 BrevBuy - Sistema de Gestão de Produtos para Revenda
 
-Um sistema completo desenvolvido em Next.js para controle de produtos comprados e vendidos, ideal para pequenos empreendedores e revendedores.
+> **O que é este projeto?** BrevBuy é um sistema completo desenvolvido em Next.js para controle de produtos comprados e vendidos, ideal para pequenos empreendedores e revendedores que precisam de uma ferramenta robusta para gerenciar seu negócio.
+
+## 📋 Sobre o Projeto
+
+BrevBuy é uma **plataforma web moderna** que permite a pequenos empresários e revendedores ter **controle total** sobre seu estoque, vendas e lucratividade. Com uma interface elegante e intuitiva, o sistema oferece desde funcionalidades básicas de cadastro de produtos até recursos avançados de automação e análise de dados.
 
 ## ✨ Funcionalidades
 
@@ -10,6 +14,9 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 - **🔄 Status de Produtos**: Marcar produtos como vendidos ou disponíveis
 - **🌙 Dark Mode**: Interface elegante com tema escuro padrão
 - **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
+- **🤖 Automação**: Importação automática de produtos do AliExpress via email
+- **🧠 IA Integrada**: Categorização e descrição automática usando OpenAI
+- **👤 Multi-usuário**: Sistema de autenticação e dados isolados por usuário
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -24,19 +31,31 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 ### Backend & Banco de Dados
 
 - **Prisma** - ORM moderno para TypeScript
-- **SQLite** - Banco de dados local
+- **PostgreSQL** - Banco de dados relacional robusto
+- **NextAuth.js** - Autenticação completa e segura
 - **Zod** - Validação de schemas
 
 ### Formulários & UX
 
 - **React Hook Form** - Gerenciamento de formulários
-- **React Hot Toast** - Notificações elegantes
+- **React Hot Toast** - Notificações elegantes  
 - **Next Themes** - Gerenciamento de temas
+- **Lucide React** - Ícones consistentes e modernos
+
+### Automação & Integração
+
+- **Gmail API** - Integração para importação automática
+- **OpenAI GPT** - IA para categorização e descrições
+- **AliExpress Integration** - Importação de pedidos via email
+- **React Query** - Gerenciamento de estado e cache
 
 ## 📋 Pré-requisitos
 
-- Node.js 18.17 ou superior
-- npm ou yarn
+- **Node.js** 18.17 ou superior
+- **npm** ou **yarn**  
+- **PostgreSQL** (banco de dados)
+- **Conta Google** (opcional, para recursos de automação)
+- **Chave OpenAI** (opcional, para categorização automática)
 
 ## ⚡ Instalação e Configuração
 
@@ -55,6 +74,14 @@ Um sistema completo desenvolvido em Next.js para controle de produtos comprados 
 
 3. **Configure o banco de dados**
 
+   Primeiro, copie o arquivo de exemplo de variáveis de ambiente:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edite o arquivo `.env` com suas configurações de banco de dados e outras variáveis necessárias.
+   
+   Em seguida, configure o banco de dados:
    ```bash
    npx prisma db push
    npx prisma generate
