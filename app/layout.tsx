@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,7 +7,8 @@ import { QueryProvider } from "@/components/react-query/query-provider";
 import { GlobalToastProvider } from "@/components/toast/global-toast-provider";
 import packageIcon from "@/assets/images/package.png";
 
-const inter = Inter({ subsets: ["latin"] });
+// Use system fonts without external dependencies
+const interFont = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const metadata: Metadata = {
   title: "BrevBuy",
@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body style={{ fontFamily: interFont }}>
         <SessionProvider>
           <QueryProvider>
             <GlobalToastProvider>

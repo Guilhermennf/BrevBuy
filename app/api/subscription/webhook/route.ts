@@ -143,7 +143,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription;
+  // Access subscription safely - in Stripe API, subscription is a field on invoice
+  const subscriptionId = (invoice as any).subscription as string;
   if (subscriptionId && typeof subscriptionId === 'string') {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const customer = await stripe.customers.retrieve(subscription.customer as string);
@@ -165,7 +166,8 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription;
+  // Access subscription safely - in Stripe API, subscription is a field on invoice
+  const subscriptionId = (invoice as any).subscription as string;
   if (subscriptionId && typeof subscriptionId === 'string') {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const customer = await stripe.customers.retrieve(subscription.customer as string);
@@ -200,7 +202,7 @@ async function updateUserSubscription(
       data: {
         subscriptionStatus: status,
         subscriptionId: subscription.id,
-        currentPeriodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+        currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
         planType,
       }
     });

@@ -133,7 +133,7 @@ export function ProductActions({ product }: ProductActionsProps) {
       const imageData = convertImageToUint8Array(product.image);
 
       if (imageData && imageData.length > 0) {
-        const imageFile = new File([imageData], "product-image.jpg", {
+        const imageFile = new File([new Uint8Array(imageData)], "product-image.jpg", {
           type: "image/jpeg",
         });
         formData.append("file", imageFile);
