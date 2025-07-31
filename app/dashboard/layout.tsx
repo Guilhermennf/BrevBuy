@@ -19,6 +19,7 @@ import {
   PackageCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -207,8 +208,12 @@ export default function DashboardLayout({
 
           <div className="flex-1" />
 
-          {/* User menu */}
-          <DropdownMenu>
+          {/* Theme toggle and user menu */}
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
+            
+            {/* User menu */}
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2">
                 <User className="h-4 w-4" />
@@ -236,6 +241,7 @@ export default function DashboardLayout({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </header>
 
         {/* Page content */}

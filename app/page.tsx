@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Package, ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import Dashboard from "@/assets/images/dashboard.png";
 import Products from "@/assets/images/products.png";
 import Categories from "@/assets/images/categories.png";
@@ -83,6 +84,7 @@ export default function LandingPage() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
+              <ThemeToggle />
               {session ? (
                 <Link href="/dashboard">
                   <Button className="flex items-center">
@@ -152,6 +154,9 @@ export default function LandingPage() {
       >
         <div className="mx-4 mt-2 bg-background/95 backdrop-blur border border-border/40 rounded-lg shadow-lg">
           <div className="p-4 space-y-3">
+            <div className="flex justify-center">
+              <ThemeToggle />
+            </div>
             {session ? (
               <Link
                 href="/dashboard"
