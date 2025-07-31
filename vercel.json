@@ -3,5 +3,11 @@
         "app/api/**/*.ts": {
             "maxDuration": 30
         }
-    }
+    },
+    "crons": [
+        {
+            "path": "/api/cron/check-trials",
+            "schedule": "0 0 * * *"
+        }
+    ]
 }

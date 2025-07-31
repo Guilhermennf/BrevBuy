@@ -17,6 +17,7 @@ import {
   LogOut,
   User,
   PackageCheck,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SubscriptionProvider } from "@/hooks/use-subscription";
 
 const navigation = [
   {
@@ -46,6 +48,12 @@ const navigation = [
     name: "Categorias",
     href: "/dashboard/categorias",
     icon: PackageCheck,
+  },
+  {
+    name: "Automação",
+    href: "/dashboard/automacao",
+    icon: TrendingUp,
+    premium: true,
   },
   {
     name: "Configurações",
@@ -110,6 +118,7 @@ export default function DashboardLayout({
             <div className="flex items-center">
               <item.icon className="mr-3 h-4 w-4" />
               {item.name}
+              {item.premium && <Crown className="ml-2 h-3 w-3 text-yellow-500" />}
             </div>
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
@@ -143,106 +152,116 @@ export default function DashboardLayout({
       >
         <item.icon className="mr-3 h-4 w-4" />
         {item.name}
+        {item.premium && <Crown className="ml-2 h-3 w-3 text-yellow-500" />}
       </Link>
     );
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 mobile-overlay lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <SubscriptionProvider>
+      <div className="flex h-screen bg-background overflow-hidden">
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-background/80 mobile-overlay lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-      {/* Sidebar */}
-      <aside
-        className={`
+        {/* Sidebar */}
+        <aside
+          className={`
                 fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border
                 transform transition-transform duration-200 ease-in-out
                 lg:translate-x-0 lg:static lg:inset-0 lg:z-auto
                 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}
-      >
-        <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-6 border-b border-border shrink-0">
-            <div className="flex items-center gap-2">
-              <Package className="h-8 w-8 text-primary" />
-              <span className="text-lg font-semibold">BrevBuy</span>
+        >
+          <div className="flex h-full flex-col">
+            {/* Logo */}
+            <div className="flex h-16 items-center justify-between px-6 border-b border-border shrink-0">
+              <div className="flex items-center gap-2">
+                <Package className="h-8 w-8 text-primary" />
+                <span className="text-lg font-semibold">BrevBuy</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
+
+            {/* Navigation */}
+            <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto sidebar-scrollbar">
+              {navigation.map((item) => (
+                <NavItem key={item.name} item={item} />
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col min-w-0">
+          {/* Top header */}
+          <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6 shrink-0">
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
+              onClick={() => setSidebarOpen(true)}
               className="lg:hidden"
-              onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-4 w-4" />
+              <Menu className="h-4 w-4" />
             </Button>
-          </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto sidebar-scrollbar">
-            {navigation.map((item) => (
-              <NavItem key={item.name} item={item} />
-            ))}
-          </nav>
+            <div className="flex-1" />
+
+            {/* User menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline max-w-[150px] truncate">
+                    {session.user?.name || session.user?.email}
+                  </span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem disabled>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium truncate">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/upgrade" className="cursor-pointer">
+                    <Crown className="mr-2 h-4 w-4 text-yellow-500" />
+                    Upgrade para PRO
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </header>
+
+          {/* Page content */}
+          <main className="flex-1 overflow-auto bg-muted/20">
+            <div className="p-6">{children}</div>
+          </main>
         </div>
-      </aside>
-
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col min-w-0">
-        {/* Top header */}
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6 shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-
-          <div className="flex-1" />
-
-          {/* User menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline max-w-[150px] truncate">
-                  {session.user?.name || session.user?.email}
-                </span>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem disabled>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium truncate">
-                    {session.user?.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {session.user?.email}
-                  </p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-auto bg-muted/20">
-          <div className="p-6">{children}</div>
-        </main>
       </div>
-    </div>
+    </SubscriptionProvider>
   );
 }

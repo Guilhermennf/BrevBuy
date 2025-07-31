@@ -46,6 +46,16 @@ model User {
   image         String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  
+  // Subscription fields
+  subscriptionStatus String   @default("free_trial") // free_trial, active, expired, cancelled
+  trialStartDate     DateTime @default(now())
+  trialEndDate       DateTime?
+  subscriptionId     String?
+  customerId         String?  @unique
+  currentPeriodEnd   DateTime?
+  planType          String?  // monthly, annual
+  
   accounts      Account[]
   categories    Category[]
   products      Product[]

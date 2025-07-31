@@ -1,16 +1,34 @@
 "use client";
 
 import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useProducts } from "@/hooks/use-products-query";
 import { LoadingSkeletonWrapper } from "@/components/ui/loading-skeleton-wrapper";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
+import { SubscriptionStatus } from "@/components/subscription-status";
+import { useToast } from "@/hooks/use-toast";
 
 // Força renderização dinâmica para evitar problemas de build
 export const dynamic = "force-dynamic";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { error, isLoading } = useProducts();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const upgrade = searchParams.get('upgrade');
+    if (upgrade === 'success') {
+      toast({
+        title: "Assinatura ativada!",
+        description: "Sua assinatura PRO foi ativada com sucesso. Aproveite todas as funcionalidades premium!",
+      });
+      // Remove the parameter from URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  }, [searchParams, toast]);
 
   return (
     <div className="space-y-6">
@@ -20,6 +38,9 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Visão geral do seu negócio</p>
         </div>
       </div>
+
+      {/* Subscription Status */}
+      <SubscriptionStatus />
 
       <LoadingSkeletonWrapper
         isLoading={isLoading}
@@ -37,5 +58,13 @@ export default function DashboardPage() {
         <DashboardCharts />
       </LoadingSkeletonWrapper>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
