@@ -20,6 +20,7 @@ import {
 import { loginSchema, LoginFormData } from "@/lib/validations";
 import { useAuthToast } from "@/hooks/use-auth-toast";
 import { PasswordInput } from "@/components/ui/password-input";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+      {/* Theme Toggle in top-right corner */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md space-y-6">
         {/* Back to home */}
         <Link

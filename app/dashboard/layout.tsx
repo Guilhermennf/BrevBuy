@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 const navigation = [
   {
@@ -206,6 +207,9 @@ export default function DashboardLayout({
           </Button>
 
           <div className="flex-1" />
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* User menu */}
           <DropdownMenu>
