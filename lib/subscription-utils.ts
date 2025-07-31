@@ -1,7 +1,18 @@
 import { addDays, differenceInDays, isAfter } from 'date-fns';
 import { UserSubscription, SubscriptionStatus } from '@/types/subscription';
-import { User } from '@prisma/client';
 import { TRIAL_PERIOD_DAYS } from './stripe';
+
+// Define a User type that matches our schema
+type User = {
+  id: string;
+  subscriptionStatus: string;
+  trialStartDate: Date;
+  trialEndDate: Date | null;
+  subscriptionId: string | null;
+  customerId: string | null;
+  currentPeriodEnd: Date | null;
+  planType: string | null;
+};
 
 export function calculateTrialEndDate(trialStartDate: Date): Date {
   return addDays(trialStartDate, TRIAL_PERIOD_DAYS);
