@@ -10,6 +10,9 @@ import { Check, Crown, Loader2 } from 'lucide-react';
 import { SubscriptionPlan } from '@/types/subscription';
 import { useSubscription } from '@/hooks/use-subscription';
 
+// Force this page to be dynamic to avoid pre-rendering issues
+export const dynamic = 'force-dynamic';
+
 export default function UpgradePage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);

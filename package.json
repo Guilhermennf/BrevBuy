@@ -5,14 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/safe-prisma-generate.js && next build",
-    "build:offline": "SKIP_PRISMA_GENERATE=true next build",
+    "build:offline": "PRISMA_GENERATE_SKIP_DOWNLOAD=true next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:generate:safe": "node scripts/safe-prisma-generate.js",
-    "postinstall": "if [ \"$SKIP_PRISMA_GENERATE\" != \"true\" ]; then prisma generate; fi"
+    "postinstall": "if [ \"$SKIP_PRISMA_GENERATE\" != \"true\" ]; then node scripts/safe-prisma-generate.js; fi"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

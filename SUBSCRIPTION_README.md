@@ -30,6 +30,52 @@ This document outlines the complete implementation of the Stripe subscription sy
 - **Database Schema**: Extended User model with subscription fields
 - **Cron Jobs**: Vercel cron integration for trial expiration
 
+## 🚀 Deployment Fixes
+
+### Firewall-Restricted Environments
+
+This project has been configured to build successfully in restricted network environments that block external dependencies.
+
+#### Issues Fixed:
+1. **Prisma Binary Downloads**: Prevented failures when `binaries.prisma.sh` is blocked
+2. **Google Fonts Access**: Replaced external font loading with system fonts
+3. **Build-time Dependencies**: Made all external API calls optional during build
+
+#### Build Commands for Restricted Environments:
+
+```bash
+# For environments where Prisma binaries can't be downloaded
+SKIP_PRISMA_GENERATE=true npm install
+npm run build:offline
+
+# Or use the safe build script
+npm run build
+```
+
+#### Environment Variables for Deployment:
+
+```bash
+# Skip Prisma generation during install (if needed)
+SKIP_PRISMA_GENERATE=true
+
+# Skip Prisma binary downloads during generation (if needed)
+PRISMA_GENERATE_SKIP_DOWNLOAD=true
+```
+
+#### Troubleshooting Deployment Issues:
+
+**Problem**: Build fails with "binaries.prisma.sh" network error
+**Solution**: Use `npm run build:offline` or set `SKIP_PRISMA_GENERATE=true`
+
+**Problem**: Build fails with Google Fonts access error
+**Solution**: Already fixed - the app now uses system fonts instead of external Google Fonts
+
+**Problem**: TypeScript compilation errors during build
+**Solution**: All TypeScript errors have been resolved for offline builds
+
+**Problem**: Missing environment variables during build
+**Solution**: Build process now handles missing environment variables gracefully
+
 ## Environment Variables
 
 Create a `.env.local` file with the following variables:

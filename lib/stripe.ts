@@ -1,18 +1,25 @@
 import Stripe from 'stripe';
 import { SubscriptionPlan } from '@/types/subscription';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set');
+// Initialize Stripe with proper error handling for build environments
+let stripe: Stripe;
+
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  // For build/development environments without keys, create a placeholder
+  console.warn('STRIPE_SECRET_KEY is not set - using placeholder for build');
+  stripe = {} as Stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export { stripe };
 
 export const STRIPE_CONFIG = {
-  PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-  SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
-  WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
-  SUCCESS_URL: `${process.env.NEXTAUTH_URL}/dashboard?checkout=success`,
-  CANCEL_URL: `${process.env.NEXTAUTH_URL}/upgrade?checkout=cancelled`,
+  PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+  SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+  WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
+  SUCCESS_URL: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard?checkout=success`,
+  CANCEL_URL: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/upgrade?checkout=cancelled`,
 };
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [

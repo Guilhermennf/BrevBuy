@@ -60,7 +60,18 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
 export function useSubscription() {
   const context = useContext(SubscriptionContext);
+  
+  // Handle build-time context issues gracefully
   if (context === undefined) {
+    // During build time or when outside provider, return a fallback
+    if (typeof window === 'undefined') {
+      return {
+        subscription: null,
+        loading: true,
+        error: null,
+        refetch: async () => {}
+      };
+    }
     throw new Error('useSubscription must be used within a SubscriptionProvider');
   }
   return context;
