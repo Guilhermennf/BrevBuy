@@ -6,7 +6,6 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import {
     Package,
-    TrendingUp,
     Settings,
     BarChart3,
     ChevronDown,
@@ -68,12 +67,12 @@ const navigation = [
         href: "/dashboard/categorias",
         icon: PackageCheck,
     },
-    {
-        name: "Automação",
-        href: "/dashboard/automacao",
-        icon: TrendingUp,
-        premium: true,
-    },
+    // {
+    //     name: "Automação",
+    //     href: "/dashboard/automacao",
+    //     icon: TrendingUp,
+    //     premium: true,
+    // },
     {
         name: "Configurações",
         href: "/dashboard/configuracoes",
