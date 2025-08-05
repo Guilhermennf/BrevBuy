@@ -6,7 +6,6 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import {
     Package,
-    ShoppingCart,
     TrendingUp,
     Settings,
     BarChart3,
@@ -21,7 +20,8 @@ import {
     Clock,
     AlertTriangle,
     CheckCircle,
-    Calendar,
+    ChevronsUpDown,
+    Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,18 +32,21 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+    Command,
+    CommandGroup,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import {
     SubscriptionProvider,
     useSubscription,
 } from "@/hooks/use-subscription";
-import { SubscriptionStatus } from "@/types/subscription";
-import {
-    calculateTrialEndDate,
-    isTrialActive,
-    getDaysLeftInTrial,
-    hasSubscriptionAccess,
-    getUserSubscriptionInfo,
-} from "@/lib/subscription-utils";
-import { Badge } from "@/components/ui/badge";
 
 const navigation = [
     {
@@ -86,8 +89,50 @@ export default function DashboardLayout({
     const { data: session, status } = useSession();
     const [expandedItems, setExpandedItems] = useState<string[]>(["Produtos"]);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [subscriptionPopoverOpen, setSubscriptionPopoverOpen] =
+        useState(false);
+    const [isLargeScreen, setIsLargeScreen] = useState(true);
     const router = useRouter();
     const { subscription, loading } = useSubscription();
+
+    // Detect screen size for responsive popover alignment
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsLargeScreen(window.innerWidth >= 640); // sm breakpoint
+        };
+
+        checkScreenSize();
+        window.addEventListener("resize", checkScreenSize);
+
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
+
+    // Subscription options for the popover
+    const subscriptionOptions = [
+        {
+            value: "manage",
+            label: "Gerenciar Assinatura",
+            href: "/dashboard/configuracoes",
+            icon: Settings,
+            show:
+                subscription?.hasAccess &&
+                subscription?.subscriptionStatus === "active",
+        },
+        {
+            value: "upgrade",
+            label:
+                subscription?.subscriptionStatus === "cancelled"
+                    ? "Reativar Assinatura"
+                    : subscription?.isTrialActive
+                    ? "Fazer Upgrade para PRO"
+                    : "Ver Planos PRO",
+            href: "/dashboard/configuracoes",
+            icon: Crown,
+            show:
+                !subscription?.hasAccess ||
+                subscription?.subscriptionStatus !== "active",
+        },
+    ];
 
     useEffect(() => {
         if (status === "loading") return; // Ainda carregando
@@ -242,14 +287,198 @@ export default function DashboardLayout({
                 <div className="flex flex-1 flex-col min-w-0">
                     {/* Top header */}
                     <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6 shrink-0">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden"
-                        >
-                            <Menu className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSidebarOpen(true)}
+                                className="lg:hidden"
+                            >
+                                <Menu className="h-4 w-4" />
+                            </Button>
+
+                            {/* Plan selector */}
+                            <Popover
+                                open={subscriptionPopoverOpen}
+                                onOpenChange={setSubscriptionPopoverOpen}
+                            >
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={subscriptionPopoverOpen}
+                                        className="w-[120px] justify-between gap-2 border-primary/20 hover:border-primary/40"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            {subscription?.hasAccess &&
+                                            subscription?.subscriptionStatus ===
+                                                "active" ? (
+                                                <>
+                                                    <Crown className="h-4 w-4 text-yellow-500" />
+                                                    <span className=" sm:inline font-medium text-green-700">
+                                                        PRO
+                                                    </span>
+                                                </>
+                                            ) : subscription?.isTrialActive ? (
+                                                <>
+                                                    <Clock className="h-4 w-4 text-blue-500" />
+                                                    <span className="hidden sm:inline font-medium text-blue-700">
+                                                        Teste (
+                                                        {
+                                                            subscription.daysLeftInTrial
+                                                        }
+                                                        d)
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                                    <span className="hidden sm:inline font-medium text-orange-700">
+                                                        {subscription?.subscriptionStatus ===
+                                                        "cancelled"
+                                                            ? "Cancelado"
+                                                            : "Gratuito"}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                    className="w-[250px] p-0"
+                                    align={isLargeScreen ? "start" : "center"}
+                                    alignOffset={0}
+                                    sideOffset={4}
+                                >
+                                    <Command>
+                                        <CommandList>
+                                            <CommandGroup>
+                                                <CommandItem disabled>
+                                                    <div className="flex items-center gap-3 w-full">
+                                                        <div
+                                                            className={cn(
+                                                                "flex items-center justify-center w-8 h-8 rounded-full",
+                                                                subscription?.hasAccess &&
+                                                                    subscription?.subscriptionStatus ===
+                                                                        "active"
+                                                                    ? "bg-green-100"
+                                                                    : subscription?.isTrialActive
+                                                                    ? "bg-blue-100"
+                                                                    : "bg-orange-100"
+                                                            )}
+                                                        >
+                                                            {subscription?.hasAccess &&
+                                                            subscription?.subscriptionStatus ===
+                                                                "active" ? (
+                                                                <Crown className="h-4 w-4 text-green-600" />
+                                                            ) : subscription?.isTrialActive ? (
+                                                                <Clock className="h-4 w-4 text-blue-600" />
+                                                            ) : (
+                                                                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p
+                                                                className={cn(
+                                                                    "font-medium",
+                                                                    subscription?.hasAccess &&
+                                                                        subscription?.subscriptionStatus ===
+                                                                            "active"
+                                                                        ? "text-green-400"
+                                                                        : subscription?.isTrialActive
+                                                                        ? "text-blue-800"
+                                                                        : "text-orange-800"
+                                                                )}
+                                                            >
+                                                                {subscription?.hasAccess &&
+                                                                subscription?.subscriptionStatus ===
+                                                                    "active"
+                                                                    ? "Plano PRO Ativo"
+                                                                    : subscription?.isTrialActive
+                                                                    ? "Período Gratuito"
+                                                                    : subscription?.subscriptionStatus ===
+                                                                      "cancelled"
+                                                                    ? "Assinatura Cancelada"
+                                                                    : "Plano Gratuito"}
+                                                            </p>
+                                                            <p
+                                                                className={cn(
+                                                                    "text-xs",
+                                                                    subscription?.hasAccess &&
+                                                                        subscription?.subscriptionStatus ===
+                                                                            "active"
+                                                                        ? "text-green-300"
+                                                                        : subscription?.isTrialActive
+                                                                        ? "text-blue-600"
+                                                                        : "text-orange-600"
+                                                                )}
+                                                            >
+                                                                {subscription?.hasAccess &&
+                                                                subscription?.subscriptionStatus ===
+                                                                    "active"
+                                                                    ? `${
+                                                                          subscription.planType ===
+                                                                          "monthly"
+                                                                              ? "Mensal"
+                                                                              : "Anual"
+                                                                      } - Acesso completo`
+                                                                    : subscription?.isTrialActive
+                                                                    ? `${subscription.daysLeftInTrial} dias restantes`
+                                                                    : subscription?.subscriptionStatus ===
+                                                                      "cancelled"
+                                                                    ? "Reative para ter acesso"
+                                                                    : "Acesso limitado"}
+                                                            </p>
+                                                        </div>
+                                                        {subscription?.hasAccess &&
+                                                            subscription?.subscriptionStatus ===
+                                                                "active" && (
+                                                                <CheckCircle className="h-4 w-4 text-green-400" />
+                                                            )}
+                                                    </div>
+                                                </CommandItem>
+                                                <DropdownMenuSeparator />
+                                                {/* Action options */}
+                                                {subscriptionOptions
+                                                    .filter(
+                                                        (option) => option.show
+                                                    )
+                                                    .map((option) => {
+                                                        const IconComponent =
+                                                            option.icon;
+                                                        return (
+                                                            <CommandItem
+                                                                key={
+                                                                    option.value
+                                                                }
+                                                                value={
+                                                                    option.value
+                                                                }
+                                                                onSelect={() => {
+                                                                    setSubscriptionPopoverOpen(
+                                                                        false
+                                                                    );
+                                                                    window.location.href =
+                                                                        option.href;
+                                                                }}
+                                                            >
+                                                                <IconComponent className="mr-2 h-4 w-4" />
+                                                                {option.label}
+                                                                <Check
+                                                                    className={cn(
+                                                                        "ml-auto h-4 w-4 opacity-0"
+                                                                    )}
+                                                                />
+                                                            </CommandItem>
+                                                        );
+                                                    })}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
 
                         <div className="flex-1" />
 
@@ -283,11 +512,11 @@ export default function DashboardLayout({
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                     <Link
-                                        href="/upgrade"
+                                        href="/dashboard/configuracoes"
                                         className="cursor-pointer"
                                     >
-                                        <Crown className="mr-2 h-4 w-4 text-yellow-500" />
-                                        Upgrade para PRO
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        Configurações
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -301,25 +530,7 @@ export default function DashboardLayout({
 
                     {/* Page content */}
                     <main className="flex-1 overflow-auto bg-muted/20">
-                        <div className="p-6">
-                            {/* Status da assinatura compacto */}
-                            <div className="hidden md:flex items-center gap-2 mb-4">
-                                {subscription?.subscriptionStatus ===
-                                    "active" && (
-                                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                                        <Crown className="h-3 w-3 mr-1" />
-                                        PRO
-                                    </Badge>
-                                )}
-                                {subscription?.isTrialActive && (
-                                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                                        <Clock className="h-3 w-3 mr-1" />
-                                        Trial
-                                    </Badge>
-                                )}
-                            </div>
-                            {children}
-                        </div>
+                        <div className="p-6">{children}</div>
                     </main>
                 </div>
             </div>

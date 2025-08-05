@@ -10,13 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-    Crown,
-    Clock,
-    AlertTriangle,
-    CheckCircle,
-    Calendar,
-} from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle, Calendar } from "lucide-react";
 import Link from "next/link";
 
 export function SubscriptionStatus() {
@@ -168,7 +162,7 @@ export function SubscriptionStatus() {
                         {!subscription.hasAccess ||
                         subscription.isTrialActive ? (
                             <Button asChild className="w-full">
-                                <Link href="/upgrade">
+                                <Link href="/dashboard/configuracoes">
                                     {subscription.isTrialActive
                                         ? "Fazer Upgrade"
                                         : "Renovar Assinatura"}
@@ -180,7 +174,7 @@ export function SubscriptionStatus() {
                                 asChild
                                 className="w-full"
                             >
-                                <Link href="/upgrade">
+                                <Link href="/dashboard/configuracoes">
                                     Gerenciar Assinatura
                                 </Link>
                             </Button>

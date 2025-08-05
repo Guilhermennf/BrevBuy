@@ -26,15 +26,18 @@ export default function UpgradePage() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        fetchPlans();
-    }, []);
-
-    useEffect(() => {
+        // Redirecionar para configurações
         const checkout = searchParams.get("checkout");
-        if (checkout === "success") {
-            router.push("/dashboard?upgrade=success");
+        if (checkout) {
+            router.push(`/dashboard/configuracoes?checkout=${checkout}`);
+        } else {
+            router.push("/dashboard/configuracoes");
         }
     }, [searchParams, router]);
+
+    useEffect(() => {
+        fetchPlans();
+    }, []);
 
     const fetchPlans = async () => {
         try {

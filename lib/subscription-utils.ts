@@ -45,6 +45,11 @@ export function hasSubscriptionAccess(
     trialEndDate: Date | null,
     currentPeriodEnd: Date | null
 ): boolean {
+    // Se a assinatura foi cancelada, não tem acesso
+    if (subscriptionStatus === "cancelled") {
+        return false;
+    }
+
     // Se o usuário tem assinatura ativa, verifica se o período atual ainda é válido
     if (subscriptionStatus === "active") {
         // Se não há currentPeriodEnd, assume que a assinatura está ativa

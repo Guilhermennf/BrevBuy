@@ -12,7 +12,7 @@ export const STRIPE_CONFIG = {
     SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
     WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
     SUCCESS_URL: `${process.env.NEXTAUTH_URL}/dashboard?checkout=success`,
-    CANCEL_URL: `${process.env.NEXTAUTH_URL}/upgrade?checkout=cancelled`,
+    CANCEL_URL: `${process.env.NEXTAUTH_URL}/dashboard/configuracoes?checkout=cancelled`,
 };
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
