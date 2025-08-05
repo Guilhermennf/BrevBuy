@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
 
 // Análise de screenshot usando Google Gemini 1.5 Flash
 async function analyzeScreenshotWithAI(imageBuffer: Buffer): Promise<{
@@ -92,10 +91,10 @@ async function analyzeScreenshotWithAI(imageBuffer: Buffer): Promise<{
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    // Verify subscription access
+    const { error, user } = await verifySubscriptionAccess(request);
+    if (error) {
+      return error;
     }
 
     const formData = await request.formData();

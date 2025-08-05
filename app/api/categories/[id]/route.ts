@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -17,27 +16,16 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Usuário não encontrado" },
-        { status: 404 }
-      );
+    // Verify subscription access
+    const { error, user } = await verifySubscriptionAccess(request);
+    if (error) {
+      return error;
     }
 
     const category = await prisma.category.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: user!.id,
       },
       include: {
         _count: {
@@ -78,21 +66,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Usuário não encontrado" },
-        { status: 404 }
-      );
+    // Verify subscription access
+    const { error, user } = await verifySubscriptionAccess(request);
+    if (error) {
+      return error;
     }
 
     const body = await request.json();
@@ -102,7 +79,7 @@ export async function PUT(
     const existingCategory = await prisma.category.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: user!.id,
       },
     });
 
@@ -117,7 +94,7 @@ export async function PUT(
     const duplicateCategory = await prisma.category.findFirst({
       where: {
         name: validatedData.name,
-        userId: user.id,
+        userId: user!.id,
         id: { not: params.id },
       },
     });
@@ -163,28 +140,17 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Usuário não encontrado" },
-        { status: 404 }
-      );
+    // Verify subscription access
+    const { error, user } = await verifySubscriptionAccess(request);
+    if (error) {
+      return error;
     }
 
     // Verificar se a categoria existe e pertence ao usuário
     const category = await prisma.category.findFirst({
       where: {
         id: params.id,
-        userId: user.id,
+        userId: user!.id,
       },
       include: {
         _count: {
