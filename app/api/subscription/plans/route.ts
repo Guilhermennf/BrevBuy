@@ -1,17 +1,12 @@
-import { NextResponse } from 'next/server';
-import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
+import { NextResponse } from "next/server";
+import { SUBSCRIPTION_PLANS } from "@/lib/stripe";
+import { ok, serverError } from "@/lib/api-response";
 
 export async function GET() {
-  try {
-    return NextResponse.json({
-      success: true,
-      data: SUBSCRIPTION_PLANS
-    });
-  } catch (error) {
-    console.error('Erro ao buscar planos:', error);
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
-  }
+    try {
+        return ok({ success: true, data: SUBSCRIPTION_PLANS });
+    } catch (error) {
+        console.error("Erro ao buscar planos:", error);
+        return serverError();
+    }
 }

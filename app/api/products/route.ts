@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
+import {
+    created,
+    ok,
+    serverError,
+    fromZod,
+    badRequest,
+} from "@/lib/api-response";
 
 const productSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
@@ -57,13 +64,10 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        return NextResponse.json(products);
+        return ok(products);
     } catch (error) {
         console.error("Erro ao buscar produtos:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }
 
@@ -104,6 +108,10 @@ export async function POST(request: NextRequest) {
             status: "AVAILABLE",
         };
 
+        if (Number.isNaN(buyPrice)) {
+            return badRequest("Preço de compra inválido");
+        }
+
         if (quantity > 1) {
             // Criar múltiplas instâncias
             for (let i = 0; i < quantity; i++) {
@@ -120,13 +128,9 @@ export async function POST(request: NextRequest) {
                 products.push(product);
             }
 
-            return NextResponse.json(
-                {
-                    message: `${quantity} produtos criados com sucesso`,
-                    products,
-                    count: quantity,
-                },
-                { status: 201 }
+            return created(
+                { products, count: quantity },
+                `${quantity} produtos criados com sucesso`
             );
         } else {
             // Criar apenas um produto
@@ -137,19 +141,12 @@ export async function POST(request: NextRequest) {
                 },
             });
 
-            return NextResponse.json(product, { status: 201 });
+            return created(product, "Produto criado com sucesso");
         }
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { error: "Dados inválidos", details: error.errors },
-                { status: 400 }
-            );
-        }
+        const z = fromZod(error, "Dados inválidos");
+        if (z) return z;
         console.error("Erro ao criar produto:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }

@@ -7,7 +7,6 @@ import { SessionProvider } from "@/components/next-auth/session-provider";
 import { QueryProvider } from "@/components/react-query/query-provider";
 import { GlobalToastProvider } from "@/components/toast/global-toast-provider";
 import packageIcon from "@/assets/images/package.png";
-import { SubscriptionProvider } from "@/hooks/use-subscription";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,21 +27,19 @@ export default function RootLayout({
         <html lang="pt-BR" suppressHydrationWarning>
             <body className={inter.className}>
                 <SessionProvider>
-                    <SubscriptionProvider>
-                        <QueryProvider>
-                            <GlobalToastProvider>
-                                <ThemeProvider
-                                    attribute="class"
-                                    defaultTheme="dark"
-                                    enableSystem
-                                    disableTransitionOnChange
-                                >
-                                    {children}
-                                    <Toaster />
-                                </ThemeProvider>
-                            </GlobalToastProvider>
-                        </QueryProvider>
-                    </SubscriptionProvider>
+                    <QueryProvider>
+                        <GlobalToastProvider>
+                            <ThemeProvider
+                                attribute="class"
+                                defaultTheme="dark"
+                                enableSystem
+                                disableTransitionOnChange
+                            >
+                                {children}
+                                <Toaster />
+                            </ThemeProvider>
+                        </GlobalToastProvider>
+                    </QueryProvider>
                 </SessionProvider>
             </body>
         </html>

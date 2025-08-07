@@ -3,16 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserSubscriptionInfo } from "@/lib/subscription-utils";
+import { unauthorized, notFound, ok, serverError } from "@/lib/api-response";
 
 export async function GET(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
         if (!session?.user?.id) {
-            return NextResponse.json(
-                { error: "Não autorizado" },
-                { status: 401 }
-            );
+            return unauthorized();
         }
 
         const user = await prisma.user.findUnique({
@@ -30,23 +28,14 @@ export async function GET(request: NextRequest) {
         });
 
         if (!user) {
-            return NextResponse.json(
-                { error: "Usuário não encontrado" },
-                { status: 404 }
-            );
+            return notFound("Usuário não encontrado");
         }
 
         const subscriptionInfo = getUserSubscriptionInfo(user);
 
-        return NextResponse.json({
-            success: true,
-            data: subscriptionInfo,
-        });
+        return ok({ success: true, data: subscriptionInfo });
     } catch (error) {
         console.error("Erro ao buscar status da assinatura:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }

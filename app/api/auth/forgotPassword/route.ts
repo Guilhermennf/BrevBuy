@@ -3,93 +3,88 @@ import { prisma } from "@/lib/prisma";
 import { forgotPasswordSchema } from "@/lib/validations";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { badRequest, message, serverError } from "@/lib/api-response";
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    // Validar dados de entrada
-    const result = forgotPasswordSchema.safeParse(body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        {
-          error: "Dados inválidos",
-          details: result.error.errors,
-        },
-        { status: 400 }
-      );
-    }
-
-    const { email } = result.data;
-
-    // Verificar se o usuário existe
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    // Por segurança, sempre retorna sucesso mesmo se o email não existir
-    // Isso evita que atacantes descubram emails válidos
-    if (!user) {
-      return NextResponse.json({
-        message:
-          "Se o email existir em nossa base, você receberá um link de redefinição de senha.",
-      });
-    }
-
-    // Gerar token único e seguro
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 3600000); // 1 hora
-
-    // Remover qualquer token existente para este email
-    await prisma.verificationToken.deleteMany({
-      where: {
-        identifier: email,
-      },
-    });
-
-    // Criar novo token no banco
-    await prisma.verificationToken.create({
-      data: {
-        identifier: email,
-        token: resetToken,
-        expires,
-      },
-    });
-
-    // Gerar link de redefinição
-    const resetUrl = `${
-      process.env.NEXTAUTH_URL || "http://localhost:3000"
-    }/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
-
-    // Verificar se as variáveis de ambiente estão configuradas
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      // Retorna sucesso mesmo sem enviar email (para não quebrar o fluxo)
-      return NextResponse.json({
-        message:
-          "Se o email existir em nossa base, você receberá um link de redefinição de senha.",
-      });
-    }
-
     try {
-      // Configurar transporter do nodemailer
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
+        const body = await request.json();
 
-      // Verificar conexão com o servidor de email
-      await transporter.verify();
+        // Validar dados de entrada
+        const result = forgotPasswordSchema.safeParse(body);
 
-      // Enviar email
-      const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-        to: email,
-        subject: "Redefinir senha - BrevBuy",
-        html: `
+        if (!result.success) {
+            return badRequest("Dados inválidos", result.error.errors);
+        }
+
+        const { email } = result.data;
+
+        // Verificar se o usuário existe
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        // Por segurança, sempre retorna sucesso mesmo se o email não existir
+        // Isso evita que atacantes descubram emails válidos
+        if (!user) {
+            return message(
+                "Se o email existir em nossa base, você receberá um link de redefinição de senha."
+            );
+        }
+
+        // Gerar token único e seguro
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        const expires = new Date(Date.now() + 3600000); // 1 hora
+
+        // Remover qualquer token existente para este email
+        await prisma.verificationToken.deleteMany({
+            where: {
+                identifier: email,
+            },
+        });
+
+        // Criar novo token no banco
+        await prisma.verificationToken.create({
+            data: {
+                identifier: email,
+                token: resetToken,
+                expires,
+            },
+        });
+
+        // Gerar link de redefinição
+        const resetUrl = `${
+            process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/reset-password?token=${resetToken}&email=${encodeURIComponent(
+            email
+        )}`;
+
+        // Verificar se as variáveis de ambiente estão configuradas
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            // Retorna sucesso mesmo sem enviar email (para não quebrar o fluxo)
+            return message(
+                "Se o email existir em nossa base, você receberá um link de redefinição de senha."
+            );
+        }
+
+        try {
+            // Configurar transporter do nodemailer
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            // Verificar conexão com o servidor de email
+            await transporter.verify();
+
+            // Enviar email
+            const info = await transporter.sendMail({
+                from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+                to: email,
+                subject: "Redefinir senha - BrevBuy",
+                html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #333; text-align: center;">Redefinir senha</h1>
             <p>Olá,</p>
@@ -112,21 +107,20 @@ export async function POST(request: NextRequest) {
             </p>
           </div>
         `,
-      });
-    } catch (emailError) {
-      // Mesmo com erro de email, não quebra o fluxo para o usuário
-      // Em produção, você pode querer registrar este erro em um sistema de monitoramento
-    }
+            });
+        } catch (emailError) {
+            // Mesmo com erro de email, não quebra o fluxo para o usuário
+            // Em produção, você pode querer registrar este erro em um sistema de monitoramento
+        }
 
-    return NextResponse.json({
-      message:
-        "Se o email existir em nossa base, você receberá um link de redefinição de senha.",
-    });
-  } catch (error) {
-    console.error("Erro ao processar solicitação de reset de senha:", error);
-    return NextResponse.json(
-      { error: "Erro interno do servidor" },
-      { status: 500 }
-    );
-  }
+        return message(
+            "Se o email existir em nossa base, você receberá um link de redefinição de senha."
+        );
+    } catch (error) {
+        console.error(
+            "Erro ao processar solicitação de reset de senha:",
+            error
+        );
+        return serverError();
+    }
 }

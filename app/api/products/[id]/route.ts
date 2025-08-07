@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
+import {
+    notFound,
+    ok,
+    serverError,
+    fromZod,
+    badRequest,
+} from "@/lib/api-response";
 
 const updateProductSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório").optional(),
@@ -35,19 +42,13 @@ export async function GET(
         });
 
         if (!product) {
-            return NextResponse.json(
-                { error: "Produto não encontrado" },
-                { status: 404 }
-            );
+            return notFound("Produto não encontrado");
         }
 
-        return NextResponse.json(product);
+        return ok(product);
     } catch (error) {
         console.error("Erro ao buscar produto:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }
 
@@ -91,10 +92,7 @@ export async function PUT(
         });
 
         if (!existingProduct) {
-            return NextResponse.json(
-                { error: "Produto não encontrado" },
-                { status: 404 }
-            );
+            return notFound("Produto não encontrado");
         }
 
         const product = await prisma.product.update({
@@ -108,20 +106,12 @@ export async function PUT(
             },
         });
 
-        return NextResponse.json(product);
+        return ok(product, "Produto atualizado com sucesso");
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { error: "Dados inválidos", details: error.errors },
-                { status: 400 }
-            );
-        }
-
+        const z = fromZod(error, "Dados inválidos");
+        if (z) return z;
         console.error("Erro ao atualizar produto:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }
 
@@ -145,22 +135,16 @@ export async function DELETE(
         });
 
         if (!existingProduct) {
-            return NextResponse.json(
-                { error: "Produto não encontrado" },
-                { status: 404 }
-            );
+            return notFound("Produto não encontrado");
         }
 
         await prisma.product.delete({
             where: { id: params.id },
         });
 
-        return NextResponse.json({ message: "Produto excluído com sucesso" });
+        return ok({ message: "Produto excluído com sucesso" });
     } catch (error) {
         console.error("Erro ao deletar produto:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }

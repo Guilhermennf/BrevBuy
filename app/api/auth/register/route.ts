@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { conflict, created, fromZod, serverError } from "@/lib/api-response";
 
 const registerSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
@@ -20,10 +21,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (existingUser) {
-            return NextResponse.json(
-                { error: "Usuário já existe com este email" },
-                { status: 400 }
-            );
+            return conflict("Usuário já existe com este email");
         }
 
         // Hash da senha
@@ -38,25 +36,14 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        return NextResponse.json(
-            {
-                message: "Usuário criado com sucesso",
-                user: { id: user.id, name: user.name, email: user.email },
-            },
-            { status: 201 }
+        return created(
+            { user: { id: user.id, name: user.name, email: user.email } },
+            "Usuário criado com sucesso"
         );
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { error: "Dados inválidos", details: error.errors },
-                { status: 400 }
-            );
-        }
-
+        const z = fromZod(error, "Dados inválidos");
+        if (z) return z;
         console.error("Erro ao criar usuário:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }

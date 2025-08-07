@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
+import {
+    ok,
+    serverError,
+    fromZod,
+    conflict,
+    created,
+} from "@/lib/api-response";
 
 const categorySchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
@@ -29,13 +36,10 @@ export async function GET(request: NextRequest) {
             orderBy: { name: "asc" },
         });
 
-        return NextResponse.json(categories);
+        return ok(categories);
     } catch (error) {
         console.error("Erro ao buscar categorias:", error);
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return serverError();
     }
 }
 
@@ -78,20 +82,11 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        return NextResponse.json(category, { status: 201 });
+        return created(category, "Categoria criada com sucesso");
     } catch (error) {
         console.error("Erro ao criar categoria:", error);
-
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { error: "Dados inválidos", details: error.errors },
-                { status: 400 }
-            );
-        }
-
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        const z = fromZod(error, "Dados inválidos");
+        if (z) return z;
+        return serverError();
     }
 }
