@@ -46,6 +46,29 @@ function DashboardContent() {
                 </div>
             </div>
 
+            {!loading &&
+                (!subscription?.hasAccess ||
+                    subscription?.subscriptionStatus !== "active") && (
+                    <div className="border rounded-lg p-4 bg-accent/30">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p className="font-medium">
+                                    Você está no plano Gratuito
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Veja os planos PRO e faça upgrade para
+                                    desbloquear recursos premium.
+                                </p>
+                            </div>
+                            <Button asChild>
+                                <Link href="/dashboard/configuracoes">
+                                    Ver Planos e Assinar
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
             <LoadingSkeletonWrapper
                 isLoading={isLoading}
                 skeletonType="grid"
