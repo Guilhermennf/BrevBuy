@@ -14,9 +14,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Check, Crown, Loader2 } from "lucide-react";
 import { SubscriptionPlan } from "@/types/subscription";
-import { useSubscription } from "@/hooks/use-subscription";
+import {
+    SubscriptionProvider,
+    useSubscription,
+} from "@/hooks/use-subscription";
 
-export default function UpgradePage() {
+function UpgradePageInner() {
     const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
     const [loading, setLoading] = useState(true);
     const [checkingOut, setCheckingOut] = useState<string | null>(null);
@@ -193,5 +196,13 @@ export default function UpgradePage() {
                 <p>✓ Atualizações gratuitas</p>
             </div>
         </div>
+    );
+}
+
+export default function UpgradePage() {
+    return (
+        <SubscriptionProvider>
+            <UpgradePageInner />
+        </SubscriptionProvider>
     );
 }
