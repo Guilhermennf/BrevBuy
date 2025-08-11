@@ -50,6 +50,16 @@ export async function verifySubscriptionAccess(request: NextRequest) {
             };
         }
 
+        // Skip subscription verification for safe HTTP methods (GET, HEAD, OPTIONS)
+        const method = request.method.toUpperCase();
+        const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+        if (SAFE_METHODS.has(method)) {
+            return {
+                error: null,
+                user: user
+            };
+        }
+
         // Check if user has subscription access
         const hasAccess = hasSubscriptionAccess(
             user.subscriptionStatus as SubscriptionStatus,
