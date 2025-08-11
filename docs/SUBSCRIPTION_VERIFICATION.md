@@ -9,6 +9,15 @@ O sistema verifica automaticamente se o usuário tem:
 - Período de teste gratuito válido (7 dias)
 - Acesso às funcionalidades do sistema
 
+## Política por método HTTP
+
+- **GET/HEAD/OPTIONS**
+  - Não passam pela verificação de assinatura.
+  - Podem ainda exigir autenticação (dependendo do endpoint), mas não bloqueiam por status de assinatura/trial.
+- **POST/PUT/PATCH**
+  - Exigem verificação de assinatura/trial.
+  - Se o trial estiver expirado, a assinatura estiver cancelada/expirada ou não houver assinatura válida, retornará 403 com `requiresUpgrade: true`.
+
 ## Middleware de Verificação
 
 ### `verifySubscriptionAccess()`
@@ -17,8 +26,8 @@ Localizado em: `lib/subscription-middleware.ts`
 
 Esta função middleware:
 1. Verifica se o usuário está autenticado
-2. Busca os dados de assinatura do usuário no banco
-3. Valida se o usuário tem acesso ativo usando `hasSubscriptionAccess()`
+2. Em métodos GET/HEAD/OPTIONS, retorna o usuário sem verificar assinatura
+3. Em métodos POST/PUT/PATCH, verifica assinatura via `hasSubscriptionAccess()`
 4. Retorna erro 403 com mensagem específica se não tiver acesso
 5. Retorna dados do usuário se tiver acesso
 
@@ -29,31 +38,32 @@ Esta função middleware:
 - **`cancelled`**: Assinatura cancelada
 - **`expired`**: Período de teste ou assinatura expirados
 
-## Endpoints Protegidos
+## Endpoints Protegidos (verificação de assinatura)
 
-Todos os seguintes endpoints agora verificam a assinatura antes de permitir acesso:
+A verificação de assinatura aplica-se apenas a POST/PUT/PATCH:
 
 ### Produtos
-- `GET /api/products` - Listar produtos
 - `POST /api/products` - Criar produto
-- `GET /api/products/[id]` - Buscar produto específico
 - `PUT /api/products/[id]` - Atualizar produto
-- `DELETE /api/products/[id]` - Excluir produto
 - `PATCH /api/products/[id]/sell` - Marcar produto como vendido
+- `DELETE /api/products/[id]` - Observação: por ora, não exige verificação de assinatura (pode ser alterado futuramente)
 
 ### Categorias
-- `GET /api/categories` - Listar categorias
 - `POST /api/categories` - Criar categoria
-- `GET /api/categories/[id]` - Buscar categoria específica
 - `PUT /api/categories/[id]` - Atualizar categoria
-- `DELETE /api/categories/[id]` - Excluir categoria
 
 ### Automação
 - `POST /api/automation/analyze-screenshot` - Análise de screenshot com IA
 
-## Endpoints NÃO Protegidos
+## Endpoints NÃO Protegidos (por assinatura)
 
-Os seguintes endpoints permanecem acessíveis sem verificação de assinatura:
+Os seguintes endpoints permanecem acessíveis sem verificação de assinatura (podem ainda exigir autenticação se o handler assim o fizer):
+
+### Leitura (GET)
+- `GET /api/products` - Listar produtos
+- `GET /api/products/[id]` - Buscar produto específico
+- `GET /api/categories` - Listar categorias
+- `GET /api/categories/[id]` - Buscar categoria específica
 
 ### Autenticação
 - Todos os endpoints em `/api/auth/*`
@@ -101,7 +111,7 @@ Quando o acesso é negado, o sistema retorna erro 403 com mensagens específicas
 
 ## Implementação no Frontend
 
-O frontend deve tratar os erros 403 e redirecionar o usuário para a página de upgrade:
+O frontend deve tratar os erros 403 e redirecionar o usuário para a página de upgrade (isso só ocorrerá em POST/PUT/PATCH):
 
 ```typescript
 // Exemplo de tratamento no frontend
@@ -117,7 +127,7 @@ if (response.status === 403) {
 
 ## Lógica de Verificação
 
-A verificação segue esta ordem de prioridade:
+A verificação segue esta ordem de prioridade (quando aplicada a POST/PUT/PATCH):
 
 1. **Assinatura Cancelada**: Sempre nega acesso
 2. **Assinatura Ativa**: Verifica se `currentPeriodEnd` ainda é válido
@@ -141,29 +151,19 @@ Para monitorar tentativas de acesso negado:
 
 ## Manutenção
 
-### Adicionando Novos Endpoints
+Para proteger novos endpoints mutáveis (POST/PUT/PATCH):
 
-Para proteger novos endpoints:
-
-1. Importe o middleware:
 ```typescript
 import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
-```
 
-2. Use no início da função:
-```typescript
-export async function GET(request: NextRequest) {
-  try {
-    // Verify subscription access
-    const { error, user } = await verifySubscriptionAccess(request);
-    if (error) {
-      return error;
-    }
-    
-    // Resto da lógica usando user!.id
-  }
+export async function POST(request: NextRequest) {
+  const { error, user } = await verifySubscriptionAccess(request);
+  if (error) return error;
+  // lógica...
 }
 ```
+
+Para GET públicos (sem exigir login), basta não chamar o middleware na rota. Para GET autenticados, chame o middleware normalmente — ele apenas garantirá o usuário sem bloquear por assinatura.
 
 ### Modificando Mensagens
 
