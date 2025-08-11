@@ -11,37 +11,37 @@ import packageIcon from "@/assets/images/package.png";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BrevBuy",
-  icons: {
-    icon: packageIcon.src,
-  },
-  description: "Sistema para controle de produtos comprados e vendidos",
+    title: "BrevBuy",
+    icons: {
+        icon: packageIcon.src,
+    },
+    description: "Sistema para controle de produtos comprados e vendidos",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={inter.className}>
-        <SessionProvider>
-          <QueryProvider>
-            <GlobalToastProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="dark"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-                <Toaster />
-              </ThemeProvider>
-            </GlobalToastProvider>
-          </QueryProvider>
-        </SessionProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="pt-BR" suppressHydrationWarning>
+            <body className={inter.className}>
+                <SessionProvider>
+                    <QueryProvider>
+                        <GlobalToastProvider>
+                            <ThemeProvider
+                                attribute="class"
+                                defaultTheme="dark"
+                                enableSystem
+                                disableTransitionOnChange
+                            >
+                                {children}
+                                <Toaster />
+                            </ThemeProvider>
+                        </GlobalToastProvider>
+                    </QueryProvider>
+                </SessionProvider>
+            </body>
+        </html>
+    );
 }

@@ -1,41 +1,97 @@
 "use client";
 
 import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useProducts } from "@/hooks/use-products-query";
 import { LoadingSkeletonWrapper } from "@/components/ui/loading-skeleton-wrapper";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
+import { SubscriptionStatus } from "@/components/subscription-status";
+import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/use-subscription";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Força renderização dinâmica para evitar problemas de build
 export const dynamic = "force-dynamic";
 
-export default function DashboardPage() {
-  const { error, isLoading } = useProducts();
+function DashboardContent() {
+    const { error, isLoading } = useProducts();
+    const searchParams = useSearchParams();
+    const { toast } = useToast();
+    const { subscription, loading } = useSubscription();
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+    useEffect(() => {
+        const upgrade = searchParams.get("upgrade");
+        if (upgrade === "success") {
+            toast({
+                title: "Assinatura ativada!",
+                description:
+                    "Sua assinatura PRO foi ativada com sucesso. Aproveite todas as funcionalidades premium!",
+            });
+            // Remove the parameter from URL
+            window.history.replaceState({}, "", "/dashboard");
+        }
+    }, [searchParams, toast]);
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold">Dashboard</h1>
+                    <p className="text-muted-foreground">
+                        Visão geral do seu negócio
+                    </p>
+                </div>
+            </div>
+
+            {!loading &&
+                (!subscription?.hasAccess ||
+                    subscription?.subscriptionStatus !== "active") && (
+                    <div className="border rounded-lg p-4 bg-accent/30">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p className="font-medium">
+                                    Você está no plano Gratuito
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Veja os planos PRO e faça upgrade para
+                                    desbloquear recursos premium.
+                                </p>
+                            </div>
+                            <Button asChild>
+                                <Link href="/dashboard/configuracoes">
+                                    Ver Planos e Assinar
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+            <LoadingSkeletonWrapper
+                isLoading={isLoading}
+                skeletonType="grid"
+                skeletonCount={4}
+            >
+                <StatsCards />
+            </LoadingSkeletonWrapper>
+
+            <LoadingSkeletonWrapper
+                isLoading={isLoading}
+                skeletonType="card"
+                skeletonCount={1}
+            >
+                <DashboardCharts />
+            </LoadingSkeletonWrapper>
         </div>
-      </div>
+    );
+}
 
-      <LoadingSkeletonWrapper
-        isLoading={isLoading}
-        skeletonType="grid"
-        skeletonCount={4}
-      >
-        <StatsCards />
-      </LoadingSkeletonWrapper>
-
-      <LoadingSkeletonWrapper
-        isLoading={isLoading}
-        skeletonType="card"
-        skeletonCount={1}
-      >
-        <DashboardCharts />
-      </LoadingSkeletonWrapper>
-    </div>
-  );
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<div>Carregando...</div>}>
+            <DashboardContent />
+        </Suspense>
+    );
 }
