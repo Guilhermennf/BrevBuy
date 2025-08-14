@@ -1,85 +1,81 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { stripe, STRIPE_CONFIG } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import Stripe from "stripe";
-import { badRequest, ok, serverError } from "@/lib/api-response";
+import { badRequest, message, serverError } from "@/lib/api-response";
+
+function getStripeConfig() {
+    return {
+        WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
+    };
+}
+
+async function getStripe() {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+        throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    const { default: Stripe } = await import("stripe");
+    return new Stripe(secretKey);
+}
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.text();
-        const signature = headers().get("stripe-signature");
+        const headersList = headers();
+        const signature = headersList.get("stripe-signature");
 
         if (!signature) {
             return badRequest("Assinatura do webhook ausente");
         }
 
-        let event: Stripe.Event;
+        const stripe = await getStripe();
+        let event: any;
 
         try {
             event = stripe.webhooks.constructEvent(
                 body,
                 signature,
-                STRIPE_CONFIG.WEBHOOK_SECRET
+                getStripeConfig().WEBHOOK_SECRET
             );
         } catch (err: any) {
-            console.error("Erro na verificação do webhook:", err.message);
-            return badRequest(
-                `Webhook signature verification failed: ${err.message}`
-            );
+            console.error("Erro na validação do webhook:", err.message);
+            return badRequest(`Erro na validação do webhook: ${err.message}`);
         }
 
-        console.log("Received webhook event:", event.type);
-
+        // Processar eventos
         switch (event.type) {
             case "checkout.session.completed":
-                await handleCheckoutSessionCompleted(
-                    event.data.object as Stripe.Checkout.Session
-                );
+                await handleCheckoutCompleted(event.data.object);
                 break;
-
             case "customer.subscription.created":
-                await handleSubscriptionCreated(
-                    event.data.object as Stripe.Subscription
-                );
+                await handleSubscriptionCreated(event.data.object);
                 break;
-
             case "customer.subscription.updated":
-                await handleSubscriptionUpdated(
-                    event.data.object as Stripe.Subscription
-                );
+                await handleSubscriptionUpdated(event.data.object);
                 break;
-
             case "customer.subscription.deleted":
-                await handleSubscriptionDeleted(
-                    event.data.object as Stripe.Subscription
-                );
+                await handleSubscriptionDeleted(event.data.object);
                 break;
-
             case "invoice.payment_succeeded":
-                await handlePaymentSucceeded(
-                    event.data.object as Stripe.Invoice
-                );
+                await handlePaymentSucceeded(event.data.object);
                 break;
-
             case "invoice.payment_failed":
-                await handlePaymentFailed(event.data.object as Stripe.Invoice);
+                await handlePaymentFailed(event.data.object);
                 break;
-
             default:
-                console.log(`Unhandled event type: ${event.type}`);
+                console.log(`Evento não tratado: ${event.type}`);
         }
 
-        return ok({ received: true });
-    } catch (error) {
+        return message("Webhook processado com sucesso");
+    } catch (error: any) {
         console.error("Erro no webhook:", error);
-        return serverError();
+        return serverError("Erro interno do servidor");
     }
 }
 
-async function handleCheckoutSessionCompleted(
-    session: Stripe.Checkout.Session
-) {
+async function handleCheckoutCompleted(session: any) {
     const userId = session.metadata?.userId;
 
     if (!userId) {
@@ -87,6 +83,7 @@ async function handleCheckoutSessionCompleted(
         return;
     }
 
+    const stripe = await getStripe();
     const subscription = await stripe.subscriptions.retrieve(
         session.subscription as string
     );
@@ -94,147 +91,132 @@ async function handleCheckoutSessionCompleted(
     await updateUserSubscription(userId, subscription, "active");
 }
 
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
+async function handleSubscriptionCreated(subscription: any) {
+    const stripe = await getStripe();
     const customer = await stripe.customers.retrieve(
         subscription.customer as string
     );
 
     if ("deleted" in customer) {
-        console.error("Customer deleted");
+        console.error("Cliente foi deletado");
         return;
     }
 
-    const userId = customer.metadata?.userId;
+    const user = customer.email ? await prisma.user.findUnique({
+        where: { email: customer.email },
+    }) : null;
 
-    if (!userId) {
-        console.error("User ID not found in customer metadata");
-        return;
+    if (user) {
+        await updateUserSubscription(user.id, subscription, "active");
     }
-
-    await updateUserSubscription(userId, subscription, "active");
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+async function handleSubscriptionUpdated(subscription: any) {
+    const stripe = await getStripe();
     const customer = await stripe.customers.retrieve(
         subscription.customer as string
     );
 
     if ("deleted" in customer) {
-        console.error("Customer deleted");
+        console.error("Cliente foi deletado");
         return;
     }
 
-    const userId = customer.metadata?.userId;
+    const user = customer.email ? await prisma.user.findUnique({
+        where: { email: customer.email },
+    }) : null;
 
-    if (!userId) {
-        console.error("User ID not found in customer metadata");
-        return;
+    if (user) {
+        const status = subscription.status === "active" ? "active" : "inactive";
+        await updateUserSubscription(user.id, subscription, status);
     }
-
-    const status = subscription.status === "active" ? "active" : "expired";
-    await updateUserSubscription(userId, subscription, status);
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(subscription: any) {
+    const stripe = await getStripe();
     const customer = await stripe.customers.retrieve(
         subscription.customer as string
     );
 
     if ("deleted" in customer) {
-        console.error("Customer deleted");
+        console.error("Cliente foi deletado");
         return;
     }
 
-    const userId = customer.metadata?.userId;
+    const user = customer.email ? await prisma.user.findUnique({
+        where: { email: customer.email },
+    }) : null;
 
-    if (!userId) {
-        console.error("User ID not found in customer metadata");
-        return;
+    if (user) {
+        await updateUserSubscription(user.id, subscription, "canceled");
     }
-
-    await updateUserSubscription(userId, subscription, "cancelled");
 }
 
-async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-    const subscriptionId = (invoice as any).subscription as string;
+async function handlePaymentSucceeded(invoice: any) {
+    const subscriptionId = invoice.subscription as string;
     if (subscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(
-            subscriptionId
-        );
+        const stripe = await getStripe();
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const customer = await stripe.customers.retrieve(
             subscription.customer as string
         );
 
         if ("deleted" in customer) {
-            console.error("Customer deleted");
+            console.error("Cliente foi deletado");
             return;
         }
 
-        const userId = customer.metadata?.userId;
+        const user = customer.email ? await prisma.user.findUnique({
+            where: { email: customer.email },
+        }) : null;
 
-        if (!userId) {
-            console.error("User ID not found in customer metadata");
-            return;
+        if (user) {
+            await updateUserSubscription(user.id, subscription, "active");
         }
-
-        await updateUserSubscription(userId, subscription, "active");
     }
 }
 
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
-    const subscriptionId = (invoice as any).subscription as string;
+async function handlePaymentFailed(invoice: any) {
+    const subscriptionId = invoice.subscription as string;
     if (subscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(
-            subscriptionId
-        );
+        const stripe = await getStripe();
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const customer = await stripe.customers.retrieve(
             subscription.customer as string
         );
 
         if ("deleted" in customer) {
-            console.error("Customer deleted");
+            console.error("Cliente foi deletado");
             return;
         }
 
-        const userId = customer.metadata?.userId;
+        const user = customer.email ? await prisma.user.findUnique({
+            where: { email: customer.email },
+        }) : null;
 
-        if (!userId) {
-            console.error("User ID not found in customer metadata");
-            return;
+        if (user) {
+            await updateUserSubscription(user.id, subscription, "payment_failed");
         }
-
-        // Don't immediately cancel - Stripe will retry
-        console.log(
-            `Payment failed for user ${userId}, subscription ${subscription.id}`
-        );
     }
 }
 
 async function updateUserSubscription(
     userId: string,
-    subscription: Stripe.Subscription,
+    subscription: any,
     status: string
 ) {
     try {
-        const planType =
-            subscription.items.data[0]?.price?.recurring?.interval === "month"
-                ? "monthly"
-                : "annual";
-
         await prisma.user.update({
             where: { id: userId },
             data: {
                 subscriptionStatus: status,
                 subscriptionId: subscription.id,
-                currentPeriodEnd: (subscription as any).current_period_end
-                    ? new Date((subscription as any).current_period_end * 1000)
-                    : null,
-                planType,
-            } as any,
+                planType: subscription.items.data[0]?.price?.lookup_key || "unknown",
+                currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            },
         });
-
-        console.log(`Updated subscription for user ${userId}: ${status}`);
+        console.log(`Assinatura atualizada para usuário ${userId}: ${status}`);
     } catch (error) {
-        console.error("Error updating user subscription:", error);
+        console.error("Erro ao atualizar assinatura:", error);
     }
 }

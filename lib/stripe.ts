@@ -1,11 +1,13 @@
 import Stripe from "stripe";
 import { SubscriptionPlan } from "@/types/subscription";
 
-if (!process.env.STRIPE_SECRET_KEY) {
+if (!process.env.STRIPE_SECRET_KEY && process.env.NODE_ENV === "production") {
     throw new Error("STRIPE_SECRET_KEY is not set");
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export const stripe = process.env.STRIPE_SECRET_KEY 
+    ? new Stripe(process.env.STRIPE_SECRET_KEY)
+    : null;
 
 export const STRIPE_CONFIG = {
     PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,

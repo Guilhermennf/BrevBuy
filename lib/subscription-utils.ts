@@ -1,6 +1,7 @@
 import { addDays, differenceInDays, isAfter } from "date-fns";
 import { UserSubscription, SubscriptionStatus } from "@/types/subscription";
-import { TRIAL_PERIOD_DAYS } from "./stripe";
+
+const TRIAL_PERIOD_DAYS = 7;
 
 // Define a User type that matches our schema
 type User = {
