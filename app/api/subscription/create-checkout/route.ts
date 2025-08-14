@@ -2,7 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { stripe, STRIPE_CONFIG, SUBSCRIPTION_PLANS } from "@/lib/stripe";
+import { SUBSCRIPTION_PLANS } from "@/lib/stripe";
+
+async function getStripe() {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+        throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    const { default: Stripe } = await import("stripe");
+    return new Stripe(secretKey);
+}
+
+function getStripeConfig() {
+    return {
+        SUCCESS_URL: `${process.env.NEXTAUTH_URL}/dashboard?checkout=success`,
+        CANCEL_URL: `${process.env.NEXTAUTH_URL}/dashboard/configuracoes?checkout=cancelled`,
+    };
+}
 import {
     badRequest,
     notFound,
@@ -10,6 +26,8 @@ import {
     serverError,
     unauthorized,
 } from "@/lib/api-response";
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
@@ -48,6 +66,7 @@ export async function POST(request: NextRequest) {
 
         // Criar customer no Stripe se não existir
         if (!customerId) {
+            const stripe = await getStripe();
             const customer = await stripe.customers.create({
                 email: user.email,
                 name: user.name || undefined,
@@ -66,6 +85,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Criar sessão de checkout
+        const stripe = await getStripe();
         const checkoutSession = await stripe.checkout.sessions.create({
             customer: customerId,
             payment_method_types: ["card"],
@@ -76,8 +96,8 @@ export async function POST(request: NextRequest) {
                 },
             ],
             mode: "subscription",
-            success_url: STRIPE_CONFIG.SUCCESS_URL,
-            cancel_url: STRIPE_CONFIG.CANCEL_URL,
+            success_url: getStripeConfig().SUCCESS_URL,
+            cancel_url: getStripeConfig().CANCEL_URL,
             metadata: {
                 userId: user.id,
                 planId: plan.id,

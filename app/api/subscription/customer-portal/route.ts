@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { stripe, STRIPE_CONFIG } from "@/lib/stripe";
+async function getStripe() {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+        throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    const { default: Stripe } = await import("stripe");
+    return new Stripe(secretKey);
+}
 import {
     unauthorized,
     notFound,
@@ -10,6 +17,8 @@ import {
     ok,
     serverError,
 } from "@/lib/api-response";
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
@@ -42,6 +51,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Criar sessão do portal de cobrança
+        const stripe = await getStripe();
         const portalSession = await stripe.billingPortal.sessions.create({
             customer: user.customerId,
             return_url: `${process.env.NEXTAUTH_URL}/dashboard/configuracoes`,

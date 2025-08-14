@@ -182,7 +182,7 @@ export default function SmartResellCalculator() {
       competitiveMessage,
     });
 
-    generateSmartInsights(suggestedPrice, profitPct, m);
+    generateSmartInsights(suggestedPrice, profitPct, m || undefined);
   }
 
   function generateSmartInsights(price: number, profit: number, marketAvg?: number) {
