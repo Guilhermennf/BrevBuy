@@ -301,7 +301,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                                     variant="outline"
                                     role="combobox"
                                     aria-expanded={subscriptionPopoverOpen}
-                                    className="w-[120px] justify-between gap-2 border-primary/20 hover:border-primary/40"
+                                    className="min-w-[120px] max-w-[160px] justify-between gap-2 border-primary/20 hover:border-primary/40"
                                 >
                                     <div className="flex items-center gap-2">
                                         {subscription?.hasAccess &&
