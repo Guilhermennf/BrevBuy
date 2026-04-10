@@ -1,157 +1,157 @@
-# Sistema de Verificação de Assinatura
+# Subscription Verification System
 
-Este documento descreve o sistema de verificação de assinatura implementado no BrevBuy para restringir o acesso às funcionalidades principais quando o usuário não possui uma assinatura ativa.
+This document describes the subscription verification system implemented in BrevBuy to restrict access to core features when a user does not have an active subscription.
 
-## Visão Geral
+## Overview
 
-O sistema verifica automaticamente se o usuário tem:
-- Assinatura ativa (mensal ou anual)
-- Período de teste gratuito válido (7 dias)
-- Acesso às funcionalidades do sistema
+The system automatically checks whether the user has:
+- An active subscription (monthly or annual)
+- A valid free trial period (7 days)
+- Access to system features
 
-## Política por método HTTP
+## Policy by HTTP Method
 
 - **GET/HEAD/OPTIONS**
-  - Não passam pela verificação de assinatura.
-  - Podem ainda exigir autenticação (dependendo do endpoint), mas não bloqueiam por status de assinatura/trial.
+  - Do not go through subscription verification.
+  - They may still require authentication (depending on the endpoint), but they are not blocked by subscription/trial status.
 - **POST/PUT/PATCH**
-  - Exigem verificação de assinatura/trial.
-  - Se o trial estiver expirado, a assinatura estiver cancelada/expirada ou não houver assinatura válida, retornará 403 com `requiresUpgrade: true`.
+  - Require subscription/trial verification.
+  - If the trial is expired, the subscription is canceled/expired, or there is no valid subscription, returns 403 with `requiresUpgrade: true`.
 
-## Middleware de Verificação
+## Verification Middleware
 
 ### `verifySubscriptionAccess()`
 
-Localizado em: `lib/subscription-middleware.ts`
+Located at: `lib/subscription-middleware.ts`
 
-Esta função middleware:
-1. Verifica se o usuário está autenticado
-2. Em métodos GET/HEAD/OPTIONS, retorna o usuário sem verificar assinatura
-3. Em métodos POST/PUT/PATCH, verifica assinatura via `hasSubscriptionAccess()`
-4. Retorna erro 403 com mensagem específica se não tiver acesso
-5. Retorna dados do usuário se tiver acesso
+This middleware function:
+1. Checks whether the user is authenticated
+2. For GET/HEAD/OPTIONS methods, returns the user without checking subscription
+3. For POST/PUT/PATCH methods, checks subscription via `hasSubscriptionAccess()`
+4. Returns a 403 error with a specific message if access is denied
+5. Returns user data if access is allowed
 
-### Tipos de Status de Assinatura
+### Subscription Status Types
 
-- **`free_trial`**: Período de teste gratuito de 7 dias
-- **`active`**: Assinatura ativa (mensal ou anual)
-- **`cancelled`**: Assinatura cancelada
-- **`expired`**: Período de teste ou assinatura expirados
+- **`free_trial`**: 7-day free trial period
+- **`active`**: Active subscription (monthly or annual)
+- **`cancelled`**: Canceled subscription
+- **`expired`**: Trial or subscription expired
 
-## Endpoints Protegidos (verificação de assinatura)
+## Protected Endpoints (subscription verification)
 
-A verificação de assinatura aplica-se apenas a POST/PUT/PATCH:
+Subscription verification applies only to POST/PUT/PATCH:
 
-### Produtos
-- `POST /api/products` - Criar produto
-- `PUT /api/products/[id]` - Atualizar produto
-- `PATCH /api/products/[id]/sell` - Marcar produto como vendido
-- `DELETE /api/products/[id]` - Observação: por ora, não exige verificação de assinatura (pode ser alterado futuramente)
+### Products
+- `POST /api/products` - Create product
+- `PUT /api/products/[id]` - Update product
+- `PATCH /api/products/[id]/sell` - Mark product as sold
+- `DELETE /api/products/[id]` - Note: currently does not require subscription verification (may change in the future)
 
-### Categorias
-- `POST /api/categories` - Criar categoria
-- `PUT /api/categories/[id]` - Atualizar categoria
+### Categories
+- `POST /api/categories` - Create category
+- `PUT /api/categories/[id]` - Update category
 
-### Automação
-- `POST /api/automation/analyze-screenshot` - Análise de screenshot com IA
+### Automation
+- `POST /api/automation/analyze-screenshot` - AI screenshot analysis
 
-## Endpoints NÃO Protegidos (por assinatura)
+## Endpoints NOT Protected (by subscription)
 
-Os seguintes endpoints permanecem acessíveis sem verificação de assinatura (podem ainda exigir autenticação se o handler assim o fizer):
+The following endpoints remain accessible without subscription verification (they may still require authentication if the handler enforces it):
 
-### Leitura (GET)
-- `GET /api/products` - Listar produtos
-- `GET /api/products/[id]` - Buscar produto específico
-- `GET /api/categories` - Listar categorias
-- `GET /api/categories/[id]` - Buscar categoria específica
+### Read (GET)
+- `GET /api/products` - List products
+- `GET /api/products/[id]` - Get a specific product
+- `GET /api/categories` - List categories
+- `GET /api/categories/[id]` - Get a specific category
 
-### Autenticação
-- Todos os endpoints em `/api/auth/*`
-- Login, registro, recuperação de senha, etc.
+### Authentication
+- All endpoints under `/api/auth/*`
+- Login, registration, password recovery, etc.
 
-### Assinatura
-- `GET /api/subscription/status` - Status da assinatura
-- `POST /api/subscription/create-checkout` - Criar checkout
-- `GET /api/subscription/plans` - Planos disponíveis
-- `POST /api/subscription/webhook` - Webhook do Stripe
+### Subscription
+- `GET /api/subscription/status` - Subscription status
+- `POST /api/subscription/create-checkout` - Create checkout
+- `GET /api/subscription/plans` - Available plans
+- `POST /api/subscription/webhook` - Stripe webhook
 
 ### Cron Jobs
-- `POST /api/cron/check-trials` - Verificação automática de trials
+- `POST /api/cron/check-trials` - Automatic trial check
 
-## Mensagens de Erro
+## Error Messages
 
-Quando o acesso é negado, o sistema retorna erro 403 com mensagens específicas:
+When access is denied, the system returns 403 with specific messages:
 
-### Período de Teste Expirado
+### Free Trial Expired
 ```json
 {
-  "error": "Acesso negado. Seu período de teste gratuito de 7 dias expirou. Faça upgrade para continuar usando o sistema.",
+  "error": "Access denied. Your 7-day free trial has expired. Upgrade to continue using the system.",
   "subscriptionStatus": "free_trial",
   "requiresUpgrade": true
 }
 ```
 
-### Assinatura Cancelada
+### Subscription Canceled
 ```json
 {
-  "error": "Acesso negado. Sua assinatura foi cancelada. Reative sua assinatura para continuar usando o sistema.",
+  "error": "Access denied. Your subscription has been canceled. Reactivate your subscription to continue using the system.",
   "subscriptionStatus": "cancelled",
   "requiresUpgrade": true
 }
 ```
 
-### Sem Assinatura
+### No Subscription
 ```json
 {
-  "error": "Acesso negado. Você precisa de uma assinatura ativa para acessar esta funcionalidade.",
+  "error": "Access denied. You need an active subscription to access this feature.",
   "subscriptionStatus": "expired",
   "requiresUpgrade": true
 }
 ```
 
-## Implementação no Frontend
+## Frontend Implementation
 
-O frontend deve tratar os erros 403 e redirecionar o usuário para a página de upgrade (isso só ocorrerá em POST/PUT/PATCH):
+The frontend should handle 403 errors and redirect the user to the upgrade page (this will only happen on POST/PUT/PATCH):
 
 ```typescript
-// Exemplo de tratamento no frontend
+// Frontend handling example
 if (response.status === 403) {
   const errorData = await response.json();
   if (errorData.requiresUpgrade) {
-    // Redirecionar para página de upgrade
+    // Redirect to upgrade page
     router.push('/upgrade');
-    // Ou mostrar modal de upgrade
+    // Or show an upgrade modal
   }
 }
 ```
 
-## Lógica de Verificação
+## Verification Logic
 
-A verificação segue esta ordem de prioridade (quando aplicada a POST/PUT/PATCH):
+Verification follows this priority order (when applied to POST/PUT/PATCH):
 
-1. **Assinatura Cancelada**: Sempre nega acesso
-2. **Assinatura Ativa**: Verifica se `currentPeriodEnd` ainda é válido
-3. **Período de Teste**: Verifica se ainda está dentro dos 7 dias
-4. **Outros Status**: Nega acesso
+1. **Canceled Subscription**: Always denies access
+2. **Active Subscription**: Checks whether `currentPeriodEnd` is still valid
+3. **Trial Period**: Checks whether it is still within 7 days
+4. **Other Statuses**: Denies access
 
-## Segurança
+## Security
 
-- Verificação sempre feita no servidor (backend)
-- Não depende de dados do frontend
-- Consulta direta ao banco de dados
-- Validação de propriedade dos recursos (userId)
+- Verification is always done on the server (backend)
+- Does not rely on frontend data
+- Direct database query
+- Resource ownership validation (`userId`)
 
-## Monitoramento
+## Monitoring
 
-Para monitorar tentativas de acesso negado:
+To monitor denied access attempts:
 
-1. Logs são gerados automaticamente
-2. Métricas podem ser coletadas dos erros 403
-3. Análise de conversão de usuários bloqueados
+1. Logs are automatically generated
+2. Metrics can be collected from 403 errors
+3. Conversion analysis for blocked users
 
-## Manutenção
+## Maintenance
 
-Para proteger novos endpoints mutáveis (POST/PUT/PATCH):
+To protect new mutable endpoints (POST/PUT/PATCH):
 
 ```typescript
 import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
@@ -159,31 +159,31 @@ import { verifySubscriptionAccess } from "@/lib/subscription-middleware";
 export async function POST(request: NextRequest) {
   const { error, user } = await verifySubscriptionAccess(request);
   if (error) return error;
-  // lógica...
+  // logic...
 }
 ```
 
-Para GET públicos (sem exigir login), basta não chamar o middleware na rota. Para GET autenticados, chame o middleware normalmente — ele apenas garantirá o usuário sem bloquear por assinatura.
+For public GET endpoints (without requiring login), just do not call the middleware in the route. For authenticated GET endpoints, call the middleware as usual — it will only ensure the user exists without blocking by subscription.
 
-### Modificando Mensagens
+### Modifying Messages
 
-As mensagens podem ser customizadas em:
+Messages can be customized at:
 - `lib/subscription-middleware.ts`
-- Função `createSubscriptionErrorResponse()`
+- `createSubscriptionErrorResponse()` function
 
-## Testes
+## Tests
 
-Para testar o sistema:
+To test the system:
 
-1. **Teste com usuário em trial válido**: Deve ter acesso
-2. **Teste com trial expirado**: Deve ser bloqueado
-3. **Teste com assinatura ativa**: Deve ter acesso
-4. **Teste com assinatura cancelada**: Deve ser bloqueado
-5. **Teste sem autenticação**: Deve retornar 401
+1. **Test with valid trial user**: Should have access
+2. **Test with expired trial**: Should be blocked
+3. **Test with active subscription**: Should have access
+4. **Test with canceled subscription**: Should be blocked
+5. **Test without authentication**: Should return 401
 
-## Considerações Futuras
+## Future Considerations
 
-- Implementar rate limiting por tipo de assinatura
-- Adicionar métricas de uso por usuário
-- Implementar funcionalidades limitadas para usuários gratuitos
-- Adicionar notificações de expiração próxima
+- Implement rate limiting by subscription type
+- Add usage metrics per user
+- Implement limited features for free users
+- Add near-expiration notifications
