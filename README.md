@@ -1,150 +1,150 @@
-# 🛒 Sistema de Gestão de Produtos para Revenda
+# 🛒 Product Management System for Reselling
 
-Um sistema completo desenvolvido em Next.js para controle de produtos comprados e vendidos, ideal para pequenos empreendedores e revendedores.
+A complete system built with Next.js to manage purchased and sold products, ideal for small entrepreneurs and resellers.
 
-## ✨ Funcionalidades
+## ✨ Features
 
-- **📦 Gestão de Produtos**: Cadastro, edição e exclusão de produtos
-- **💰 Controle Financeiro**: Acompanhamento de lucros e perdas
-- **📊 Dashboard**: Estatísticas de vendas e produtos em tempo real
-- **🔄 Status de Produtos**: Marcar produtos como vendidos ou disponíveis
-- **🌙 Dark Mode**: Interface elegante com tema escuro padrão
-- **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
+- **📦 Product Management**: Create, edit, and delete products
+- **💰 Financial Tracking**: Monitor profits and losses
+- **📊 Dashboard**: Real-time sales and product statistics
+- **🔄 Product Status**: Mark products as sold or available
+- **🌙 Dark Mode**: Elegant interface with dark theme by default
+- **📱 Responsive**: Works perfectly on desktop and mobile
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Technologies Used
 
 ### Frontend
 
-- **Next.js 14** - Framework React com App Router
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS** - Estilização utilitária
-- **shadcn/ui** - Componentes UI modernos
-- **Lucide React** - Ícones consistentes
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Static typing
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - Modern UI components
+- **Lucide React** - Consistent icon set
 
-### Backend & Banco de Dados
+### Backend & Database
 
-- **Prisma** - ORM moderno para TypeScript
-- **SQLite** - Banco de dados local
-- **Zod** - Validação de schemas
+- **Prisma** - Modern ORM for TypeScript
+- **SQLite** - Local database
+- **Zod** - Schema validation
 
-### Formulários & UX
+### Forms & UX
 
-- **React Hook Form** - Gerenciamento de formulários
-- **React Hot Toast** - Notificações elegantes
-- **Next Themes** - Gerenciamento de temas
+- **React Hook Form** - Form state management
+- **React Hot Toast** - Elegant notifications
+- **Next Themes** - Theme management
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-- Node.js 18.17 ou superior
-- npm ou yarn
+- Node.js 18.17 or higher
+- npm or yarn
 
-## ⚡ Instalação e Configuração
+## ⚡ Installation and Setup
 
-1. **Clone o repositório**
+1. **Clone the repository**
 
    ```bash
    git clone https://github.com/Guilhermennf/BrevBuy.git
    cd BrevBuy
    ```
 
-2. **Instale as dependências**
+2. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-3. **Configure o banco de dados**
+3. **Set up the database**
 
    ```bash
    npx prisma db push
    npx prisma generate
    ```
 
-4. **Execute o projeto**
+4. **Run the project**
 
    ```bash
    npm run dev
    ```
 
-5. **Acesse a aplicação**
-   Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+5. **Open the application**
+   Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📖 Como Usar
+## 📖 How to Use
 
-### Adicionando um Produto
+### Adding a Product
 
-1. Clique no botão "Adicionar Produto"
-2. Preencha as informações do produto:
-   - Nome (obrigatório)
-   - Descrição
-   - Preço de compra (obrigatório)
-   - Categoria
-   - Fornecedor
-   - URL da imagem
-3. Clique em "Adicionar"
+1. Click the "Add Product" button
+2. Fill in the product information:
+   - Name (required)
+   - Description
+   - Purchase price (required)
+   - Category
+   - Supplier
+   - Image URL
+3. Click "Add"
 
-### Marcando como Vendido
+### Marking as Sold
 
-1. Clique nos três pontos do produto
-2. Selecione "Marcar como Vendido"
-3. Informe o preço de venda
-4. Confirme a operação
+1. Click the three-dot menu on the product
+2. Select "Mark as Sold"
+3. Enter the sale price
+4. Confirm the operation
 
-### Visualizando Estatísticas
+### Viewing Statistics
 
-O dashboard mostra automaticamente:
+The dashboard automatically shows:
 
-- Total investido
-- Total vendido
-- Lucro total e margem
-- Produtos disponíveis
+- Total invested
+- Total sold
+- Total profit and margin
+- Available products
 
-## 🎨 Estrutura do Projeto
+## 🎨 Project Structure
 
 ```
 BrevBuy/
-├── app/                    # Páginas e API routes (App Router)
-│   ├── api/               # Endpoints da API
-│   │   └── products/      # CRUD de produtos
-│   ├── globals.css        # Estilos globais
-│   ├── layout.tsx         # Layout principal
-│   └── page.tsx           # Página inicial
-├── components/            # Componentes React
-│   ├── ui/               # Componentes base do shadcn/ui
-│   ├── product-form.tsx  # Formulário de produtos
-│   └── stats-cards.tsx   # Cards de estatísticas
+├── app/                    # Pages and API routes (App Router)
+│   ├── api/               # API endpoints
+│   │   └── products/      # Product CRUD
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Main layout
+│   └── page.tsx           # Home page
+├── components/            # React components
+│   ├── ui/               # shadcn/ui base components
+│   ├── product-form.tsx  # Product form
+│   └── stats-cards.tsx   # Stats cards
 ├── hooks/                # Custom hooks
-├── lib/                  # Utilitários e configurações
-│   ├── prisma.ts         # Cliente Prisma
-│   └── utils.ts          # Funções utilitárias
-├── prisma/               # Schema do banco de dados
-└── public/               # Arquivos estáticos
+├── lib/                  # Utilities and configuration
+│   ├── prisma.ts         # Prisma client
+│   └── utils.ts          # Utility functions
+├── prisma/               # Database schema
+└── public/               # Static assets
 ```
 
-## 🔧 Scripts Disponíveis
+## 🔧 Available Scripts
 
-- `npm run dev` - Executa em desenvolvimento
-- `npm run build` - Constrói para produção
-- `npm run start` - Executa a versão de produção
-- `npm run lint` - Executa o linter
-- `npx prisma studio` - Interface visual do banco
+- `npm run dev` - Run in development mode
+- `npm run build` - Build for production
+- `npm run start` - Run production build
+- `npm run lint` - Run linter
+- `npx prisma studio` - Visual database interface
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to your branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📝 Licença
+## 📝 License
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-## 🐛 Reportar Issues
+## 🐛 Report Issues
 
-Encontrou um bug? [Abra uma issue](https://github.com/Guilhermennf/BrevBuy/issues) detalhando o problema.
+Found a bug? [Open an issue](https://github.com/Guilhermennf/BrevBuy/issues) with details.
 
 ---
 
-Desenvolvido por Guilherme Nunes
+Built by Guilherme Nunes
