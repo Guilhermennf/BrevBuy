@@ -21,6 +21,7 @@ import {
     CheckCircle,
     ChevronsUpDown,
     Check,
+    TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,11 @@ const navigation = [
         name: "Categorias",
         href: "/dashboard/categorias",
         icon: PackageCheck,
+    },
+    {
+        name: "Smart Resell",
+        href: "/dashboard/smart-resell",
+        icon: TrendingUp,
     },
     // {
     //     name: "Automação",
